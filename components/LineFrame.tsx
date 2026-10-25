@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 export type FrameLine = {
   d: string;
+  /** How much of the line draws while the scene scrolls into view (0–1). */
+  entry?: number;
   /** Timeline dots and the fraction of the line at which each gets lit. */
   nodes?: { el: HTMLElement; at: number }[];
 };
@@ -19,15 +21,18 @@ export type Rel = (sel: string) => DOMRect;
  * in step with the scroll (Skiper 19's scroll → pathLength). The page only
  * moves on once the line has drawn all the way out.
  *
+ * The line starts while the scene is still scrolling into view (its `entry`
+ * part), so it picks up right where the previous scene's line left; the rest
+ * plays out while the scene holds.
+ *
  * `build` lays out the line from the stage's content; it re-runs whenever the
- * stage resizes. `from` is how much is drawn before any scrolling; with
- * `lead`, that part draws itself in once `show` turns true.
+ * stage resizes. With `lead`, the part already due at the top of the page
+ * draws itself in once `show` turns true.
  */
 export default function LineFrame({
   id,
   length = 220,
   build,
-  from = 0,
   lead = false,
   show = true,
   className,
@@ -36,7 +41,6 @@ export default function LineFrame({
   id?: string;
   length?: number;
   build: (rel: Rel, w: number, h: number, stage: HTMLElement) => FrameLine;
-  from?: number;
   lead?: boolean;
   show?: boolean;
   className?: string;
@@ -46,8 +50,15 @@ export default function LineFrame({
   const stage = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<(FrameLine & { w: number; h: number }) | null>(null);
 
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  const byScroll = useTransform(scrollYProgress, [0, 0.9], [from, 1], { clamp: true });
+  // Progress runs from the scene's top entering the screen to the scene
+  // letting go: the first screen is the scroll-in, the rest is the hold.
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start end", "end end"] });
+  const entry = useMotionValue(0.1);
+  const inEnd = 100 / length;
+  const holdEnd = inEnd + 0.9 * (1 - inEnd);
+  const byScroll = useTransform<number, number>([scrollYProgress, entry], ([p, e]) =>
+    p <= inEnd ? (p / inEnd) * e : Math.min(1, e + ((p - inEnd) / (holdEnd - inEnd)) * (1 - e)),
+  );
   const gate = useMotionValue(lead ? 0 : 1);
   const pathLength = useTransform<number, number>([byScroll, gate], ([s, g]) => Math.min(s, g));
   const opacity = useTransform(pathLength, (v) => (v > 0.001 ? 1 : 0));
@@ -63,9 +74,11 @@ export default function LineFrame({
         const b = el.querySelector(sel)!.getBoundingClientRect();
         return new DOMRect(b.left - box.left, b.top - box.top, b.width, b.height);
       };
-      setGeo({ ...build(rel, box.width, box.height, el), w: box.width, h: box.height });
+      const line = build(rel, box.width, box.height, el);
+      entry.set(line.entry ?? 0.1);
+      setGeo({ ...line, w: box.width, h: box.height });
     });
-  }, [build]);
+  }, [build, entry]);
 
   useEffect(() => {
     const el = stage.current;
@@ -116,7 +129,7 @@ export default function LineFrame({
           >
             <motion.path
               d={geo.d}
-              stroke="rgb(var(--accent))"
+              stroke="rgb(var(--line))"
               strokeWidth={geo.w < 768 ? 8 : 12}
               strokeLinecap="round"
               strokeLinejoin="round"

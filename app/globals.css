@@ -9,6 +9,8 @@
   --paper: 10 10 10;
   --ink: 245 245 245;
   --accent: 194 248 79;
+  /* The scroll line is orange in both themes. */
+  --line: 255 94 26;
   /* Solid (non-transparent) greys so the scroll line passes cleanly behind text. */
   --muted: 160 160 160;
   --subtle: 115 115 115;

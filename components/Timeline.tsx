@@ -43,7 +43,7 @@ export default function Timeline({
             <div className="flex justify-center pt-3.5">
               <span
                 data-line-node
-                className="block size-4 rounded-full border-2 border-subtle bg-paper transition-all duration-500 data-[lit]:scale-125 data-[lit]:border-accent data-[lit]:bg-accent"
+                className="block size-4 rounded-full border-2 border-subtle bg-paper transition-all duration-500 data-[lit]:scale-125 data-[lit]:border-line data-[lit]:bg-line"
               />
             </div>
             <div className="pl-3 md:pl-0">

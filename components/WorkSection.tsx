@@ -4,46 +4,35 @@ import { HoverExpand_001 } from "@/components/HoverExpand";
 import LineFrame, { type Rel } from "@/components/LineFrame";
 import Reveal from "@/components/Reveal";
 import { work } from "@/lib/content";
-import { toPath } from "@/lib/linePath";
+import { clamp, LineBuilder } from "@/lib/linePath";
 
-const OFF = 70; // just past a screen edge
+const OFF = 80; // just past a screen edge
 
 /**
- * In at the top-left, behind the title, out on the right as if leaving; back
- * in at the top-right, round and down across its own earlier stretch, into
- * the strip's right side; behind the strip, out its left side, a slight turn
- * and out at the bottom-left.
+ * In at the top-left, behind the title, across and out on the right as if
+ * leaving; round off-screen and back in at the top-right into a full circle;
+ * down across its own earlier stretch into the strip's right side; behind the
+ * strip, out its left side, a slight turn and out at the bottom-left.
  */
 function workLine(rel: Rel, w: number, h: number) {
   const t = rel("[data-line-title]");
   const g = rel("[data-line-gallery]");
-  const side = w - g.right;
-  const rx = (f: number) => g.right + side * f;
-  const d = toPath([
-    { x: -OFF, y: t.top + t.height * 0.3 },
-    { x: t.left * 0.55, y: t.top + t.height * 0.55 },
-    { x: t.left + 10, y: t.top + t.height * 0.42 },
-    { x: t.right - 10, y: t.top + t.height * 0.15 },
-    { x: t.right + (g.right - t.right) * 0.45, y: t.top + t.height * 0.2 },
-    { x: rx(0.12), y: t.top + t.height * 0.65 },
-    { x: rx(0.7), y: g.top - h * 0.02 },
-    { x: w + OFF, y: g.top + h * 0.01 },
-    // Off-screen turn: it only pretends to leave.
-    { x: w + OFF * 1.8, y: (t.top + g.top) / 2 },
-    { x: w + OFF, y: t.top - h * 0.03 },
-    { x: rx(0.85), y: t.top + h * 0.005 },
-    { x: rx(0.56), y: t.top + t.height * 0.28 },
-    { x: rx(0.46), y: t.top + t.height * 0.72 },
-    { x: rx(0.6), y: g.top + h * 0.01 },
-    { x: rx(0.56), y: g.top + g.height * 0.3 },
-    { x: g.right + 24, y: g.top + g.height * 0.55 },
-    { x: g.right - 30, y: g.top + g.height * 0.56 },
-    { x: g.left + 30, y: g.top + g.height * 0.5 },
-    { x: g.left - 20, y: g.top + g.height * 0.48 },
-    { x: g.left * 0.4, y: g.top + g.height * 0.62 },
-    { x: -OFF, y: g.bottom + h * 0.06 },
-  ]).d;
-  return { d };
+  const R = clamp(w * 0.075, 48, 120);
+  const line = new LineBuilder({ x: -OFF, y: t.top + t.height * 0.2 }, { x: 1, y: 0.18 })
+    .to({ x: t.left + t.width * 0.45, y: t.top + t.height * 0.5 }, { x: 1, y: 0 })
+    .mark()
+    .to({ x: w * 0.68, y: t.top + t.height * 0.05 }, { x: 1, y: 0 }, 0.42)
+    .to({ x: w + OFF * 0.6, y: g.top + g.height * 0.05 }, { x: 0.55, y: 1 }, 0.42)
+    // off-screen: it only pretends to leave
+    .to({ x: w + OFF * 1.4, y: t.top - h * 0.02 }, { x: 0, y: -1 }, 0.5)
+    .to({ x: w - R * 0.6, y: Math.max(R * 0.3, t.top - h * 0.1) }, { x: -1, y: 0 }, 0.5)
+    .circle(R, 1, "left")
+    .to({ x: g.right + 10, y: g.top + g.height * 0.55 }, { x: -1, y: 0.1 }, 0.36)
+    .line({ x: g.left + 20, y: g.top + g.height * 0.55 })
+    .to({ x: g.left - Math.min(g.left * 0.4, 120), y: g.top + g.height * 0.66 }, { x: -1, y: 0.35 }, 0.4)
+    .to({ x: -OFF, y: g.bottom + h * 0.06 }, { x: -1, y: 0.6 }, 0.4)
+    .build();
+  return { d: line.d, entry: line.marks[0] };
 }
 
 /** Title + project strip; the line weaves behind both. */

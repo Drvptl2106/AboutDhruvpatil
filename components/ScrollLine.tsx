@@ -259,7 +259,7 @@ export default function ScrollLine({ children, ready }: { children: React.ReactN
         >
           <motion.path
             d={geo.d}
-            stroke="rgb(var(--accent))"
+            stroke="rgb(var(--line))"
             strokeWidth={geo.stroke}
             strokeLinecap="round"
             strokeLinejoin="round"

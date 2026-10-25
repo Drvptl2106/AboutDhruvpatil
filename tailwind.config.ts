@@ -8,6 +8,7 @@ const config: Config = {
         paper: "rgb(var(--paper) / <alpha-value>)",
         ink: "rgb(var(--ink) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
         muted: "rgb(var(--muted) / <alpha-value>)",
         subtle: "rgb(var(--subtle) / <alpha-value>)",
       },
