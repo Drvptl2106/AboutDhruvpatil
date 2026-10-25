@@ -28,3 +28,9 @@ Open http://localhost:3000.
 ## Credits
 
 Gallery based on Skiper 52 `HoverExpand_001` by [Skiper UI](https://gxuri.me) (@gurvinder-singh02).
+
+## Deploy (GitHub Pages)
+
+Pushing to `main` runs `.github/workflows/deploy.yml`, which builds a static export
+and publishes it. One-time setup: **Settings → Pages → Build and deployment → Source:
+GitHub Actions**.

@@ -3,18 +3,19 @@
 import { motion } from "framer-motion";
 
 import { HoverExpand_001, type WorkItem } from "@/components/HoverExpand";
+import { asset } from "@/lib/asset";
 
 // Replace these with your real projects — drop images in /public/images/work.
 const work: WorkItem[] = [
-  { src: "/images/work/01.svg", alt: "Project one", code: "# 01", title: "Project One", category: "Brand Identity" },
-  { src: "/images/work/02.svg", alt: "Project two", code: "# 02", title: "Project Two", category: "Web Design" },
-  { src: "/images/work/03.svg", alt: "Project three", code: "# 03", title: "Project Three", category: "Development" },
-  { src: "/images/work/04.svg", alt: "Project four", code: "# 04", title: "Project Four", category: "UI / UX" },
-  { src: "/images/work/05.svg", alt: "Project five", code: "# 05", title: "Project Five", category: "Motion" },
-  { src: "/images/work/06.svg", alt: "Project six", code: "# 06", title: "Project Six", category: "E-commerce" },
-  { src: "/images/work/07.svg", alt: "Project seven", code: "# 07", title: "Project Seven", category: "Branding" },
-  { src: "/images/work/08.svg", alt: "Project eight", code: "# 08", title: "Project Eight", category: "Product" },
-  { src: "/images/work/09.svg", alt: "Project nine", code: "# 09", title: "Project Nine", category: "Editorial" },
+  { src: asset("/images/work/01.svg"), alt: "Project one", code: "# 01", title: "Project One", category: "Brand Identity" },
+  { src: asset("/images/work/02.svg"), alt: "Project two", code: "# 02", title: "Project Two", category: "Web Design" },
+  { src: asset("/images/work/03.svg"), alt: "Project three", code: "# 03", title: "Project Three", category: "Development" },
+  { src: asset("/images/work/04.svg"), alt: "Project four", code: "# 04", title: "Project Four", category: "UI / UX" },
+  { src: asset("/images/work/05.svg"), alt: "Project five", code: "# 05", title: "Project Five", category: "Motion" },
+  { src: asset("/images/work/06.svg"), alt: "Project six", code: "# 06", title: "Project Six", category: "E-commerce" },
+  { src: asset("/images/work/07.svg"), alt: "Project seven", code: "# 07", title: "Project Seven", category: "Branding" },
+  { src: asset("/images/work/08.svg"), alt: "Project eight", code: "# 08", title: "Project Eight", category: "Product" },
+  { src: asset("/images/work/09.svg"), alt: "Project nine", code: "# 09", title: "Project Nine", category: "Editorial" },
 ];
 
 const ease = [0.76, 0, 0.24, 1] as const;
