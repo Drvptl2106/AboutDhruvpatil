@@ -3,95 +3,18 @@
 import { animate, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-type Point = { x: number; y: number };
+import { clamp, loop, type Point, TAU, toPath } from "@/lib/linePath";
 
 // The tip of the line tracks this point of the viewport (0 = top, 1 = bottom).
 const TIP_AT = 0.65;
-// Minimum scroll (px) spent per px of line, so sideways runs and loops draw
-// gradually instead of appearing all at once.
+// Scroll (px) spent per px of line, so sideways runs and loops draw
+// gradually instead of appearing all at once. Never less than PACE_MIN,
+// even when the line is already trailing as far as it may.
 const PACE = 0.32;
-const TAU = Math.PI * 2;
-
-const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
-const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
-
-/**
- * A hand-drawn loop: 1–2 revolutions whose radius wobbles and whose centre
- * drifts, like the scribbles in Skiper 19. Starts at angle `start`.
- */
-function scribble(c: Point, r: number, turns: number, dir: 1 | -1, start: number, seed: number): Point[] {
-  const n = Math.ceil(turns * 16);
-  const pts: Point[] = [];
-  for (let k = 1; k <= n; k++) {
-    const t = k / n;
-    const a = start + dir * t * turns * TAU;
-    const rr = r * (1 + 0.2 * Math.sin(a * 2.3 + seed) - 0.15 * t);
-    pts.push({ x: c.x + rr * 1.1 * Math.cos(a) + t * r * 0.6, y: c.y + rr * Math.sin(a) + t * r * 0.15 });
-  }
-  return pts;
-}
-
-type Flat = { xs: Float32Array; ys: Float32Array; lens: Float32Array; total: number };
-
-const FLAT_STEPS = 12;
-
-/**
- * Smooth curve through every point (centripetal Catmull-Rom → cubic Béziers).
- * Also returns the curve flattened into a polyline so scroll lookups don't
- * need the (slow) SVG getPointAtLength.
- */
-function toPath(pts: Point[]): { d: string; flat: Flat } {
-  const n = Math.max(pts.length - 1, 0) * FLAT_STEPS + 1;
-  const flat: Flat = { xs: new Float32Array(n), ys: new Float32Array(n), lens: new Float32Array(n), total: 0 };
-  if (pts.length < 2) return { d: "", flat };
-  flat.xs[0] = pts[0].x;
-  flat.ys[0] = pts[0].y;
-  let k = 1;
-  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] ?? p2;
-    const d1 = Math.sqrt(dist(p0, p1));
-    const d2 = Math.sqrt(dist(p1, p2)) || 1e-3;
-    const d3 = Math.sqrt(dist(p2, p3));
-    const c1 =
-      d1 < 1e-3
-        ? p1
-        : {
-            x: (d1 * d1 * p2.x - d2 * d2 * p0.x + (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2) * p1.x) / (3 * d1 * (d1 + d2)),
-            y: (d1 * d1 * p2.y - d2 * d2 * p0.y + (2 * d1 * d1 + 3 * d1 * d2 + d2 * d2) * p1.y) / (3 * d1 * (d1 + d2)),
-          };
-    const c2 =
-      d3 < 1e-3
-        ? p2
-        : {
-            x: (d3 * d3 * p1.x - d2 * d2 * p3.x + (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2) * p2.x) / (3 * d3 * (d3 + d2)),
-            y: (d3 * d3 * p1.y - d2 * d2 * p3.y + (2 * d3 * d3 + 3 * d3 * d2 + d2 * d2) * p2.y) / (3 * d3 * (d3 + d2)),
-          };
-    d += ` C ${c1.x.toFixed(1)} ${c1.y.toFixed(1)}, ${c2.x.toFixed(1)} ${c2.y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-    for (let j = 1; j <= FLAT_STEPS; j++, k++) {
-      const t = j / FLAT_STEPS;
-      const u = 1 - t;
-      const a = u * u * u;
-      const b = 3 * u * u * t;
-      const c = 3 * u * t * t;
-      const e = t * t * t;
-      flat.xs[k] = a * p1.x + b * c1.x + c * c2.x + e * p2.x;
-      flat.ys[k] = a * p1.y + b * c1.y + c * c2.y + e * p2.y;
-      flat.lens[k] = flat.lens[k - 1] + Math.hypot(flat.xs[k] - flat.xs[k - 1], flat.ys[k] - flat.ys[k - 1]);
-    }
-  }
-  flat.total = flat.lens[n - 1];
-  return { d, flat };
-}
+const PACE_MIN = 0.08;
 
 /**
  * Walk the page's `[data-line-step]` blocks in order and lay out the route:
- *  - work:     underline the heading from the left edge, scribble a loop, run
- *              down the right side and plug into the project strip's right
- *              edge; hidden behind it, then out of its left side.
  *  - zone:     an empty screen — wander off an edge, loop, come back.
  *  - timeline: underline + loop, then become the spine through every node.
  *  - about:    underline + loop, down beside the statement, behind the
@@ -112,13 +35,12 @@ function route(root: HTMLElement) {
   const nodes: { el: HTMLElement; at: Point }[] = [];
   const last = () => pts[pts.length - 1];
   let zone = 0;
-  let seed = 1;
 
   const underlineAndLoop = (h: DOMRect) => {
     const y = h.bottom + 16;
     pts.push({ x: -off, y }, { x: h.left - 8, y }, { x: h.right - 8, y });
     const cx = clamp(h.right + r * 0.9, r * 1.6, w - r * 2.2);
-    pts.push(...scribble({ x: cx, y: y - r }, r, 1.75, -1, Math.PI / 2, seed++));
+    pts.push(...loop({ x: cx, y: y - r }, r, 1.75, -1, Math.PI / 2));
     return y;
   };
   const laneRightOf = (right: number) => clamp(right + Math.min((w - right) / 2, 72), 0, w - 12);
@@ -128,36 +50,23 @@ function route(root: HTMLElement) {
     const q = (s: string) => step.querySelector<HTMLElement>(s);
     const heading = q("[data-line-anchor]");
 
-    if (kind === "work" && heading) {
-      const y = underlineAndLoop(rect(heading));
-      const g = rect(q("[data-line-gallery]")!);
-      const gm = g.top + g.height * 0.45;
-      const lane = laneRightOf(g.right);
-      pts.push(
-        { x: lane, y: y + (gm - y) * 0.35 },
-        { x: lane, y: gm - r * 1.4 },
-        { x: Math.min(g.right + r * 0.4, lane - 6), y: gm },
-        { x: g.right - 24, y: gm + 4 },
-        { x: g.left + 24, y: gm + 40 },
-        { x: g.left - r, y: gm + 70 },
-      );
-    } else if (kind === "zone") {
+    if (kind === "zone") {
       const z = rect(step);
       const at = (fx: number, fy: number) => ({ x: w * fx, y: z.top + z.height * fy });
       const v = zone++ % 3;
       if (v === 0) {
         pts.push({ x: -off, y: z.top + z.height * 0.12 }, at(0.14, 0.34));
-        pts.push(...scribble(at(0.52, 0.5), R, 1.8, -1, Math.PI, seed++));
+        pts.push(...loop(at(0.52, 0.5), R, 1.8, -1, Math.PI));
         pts.push(at(0.8, 0.68), { x: -off, y: z.top + z.height * 0.93 });
       } else if (v === 1) {
         pts.push({ x: w + off, y: z.top + z.height * 0.16 }, at(0.84, 0.36));
-        pts.push(...scribble(at(0.44, 0.52), R, 1.6, 1, 0, seed++));
+        pts.push(...loop(at(0.44, 0.52), R, 1.6, 1, 0));
         pts.push(at(0.22, 0.72), { x: -off, y: z.top + z.height * 0.93 });
       } else {
         pts.push(at(0.16, 0.2));
-        pts.push(...scribble(at(0.3, 0.36), R * 0.8, 1.5, -1, Math.PI, seed++));
+        pts.push(...loop(at(0.3, 0.36), R * 0.8, 1.5, -1, Math.PI));
         pts.push(at(0.68, 0.54));
-        pts.push(...scribble(at(0.72, 0.64), R * 0.6, 1.4, 1, -Math.PI / 2, seed++));
+        pts.push(...loop(at(0.72, 0.64), R * 0.6, 1.4, 1, -Math.PI / 2));
         pts.push({ x: -off, y: z.top + z.height * 0.93 });
       }
     } else if (kind === "timeline" && heading) {
@@ -206,7 +115,7 @@ function route(root: HTMLElement) {
   });
 
   const { d, flat } = toPath(pts);
-  return { w, h: root.scrollHeight, d, flat, stroke: w < 768 ? 10 : 16, nodes };
+  return { w, h: root.scrollHeight, d, flat, stroke: w < 768 ? 8 : 12, nodes };
 }
 
 /**
@@ -238,15 +147,24 @@ export default function ScrollLine({ children, ready }: { children: React.ReactN
     const lu = lookup.current;
     if (!el || !lu || !geo) return;
     const y = window.innerHeight * TIP_AT - el.getBoundingClientRect().top;
-    // First point whose paced y reaches the tip line.
+    // First point whose paced y reaches the tip line…
+    const { paced } = lu;
+    const { lens, total } = geo.flat;
     let lo = 0;
-    let hi = lu.paced.length - 1;
+    let hi = paced.length - 1;
     while (lo < hi) {
       const mid = (lo + hi) >> 1;
-      if (lu.paced[mid] < y) lo = mid + 1;
+      if (paced[mid] < y) lo = mid + 1;
       else hi = mid;
     }
-    target.set(geo.flat.total ? geo.flat.lens[lo] / geo.flat.total : 0);
+    // …then interpolate from the previous one, so the line grows with every
+    // pixel of scroll instead of jumping point to point.
+    let len = lens[lo];
+    if (lo > 0 && paced[lo] > paced[lo - 1]) {
+      const t = clamp((y - paced[lo - 1]) / (paced[lo] - paced[lo - 1]), 0, 1);
+      len = lens[lo - 1] + (lens[lo] - lens[lo - 1]) * t;
+    }
+    target.set(total ? len / total : 0);
   }, [target, geo]);
 
   useEffect(() => {
@@ -282,8 +200,9 @@ export default function ScrollLine({ children, ready }: { children: React.ReactN
     for (let i = 0; i < ys.length; i++) {
       const step = i ? lens[i] - lens[i - 1] : 0;
       maxY = Math.max(maxY, ys[i]);
-      // Follow the page, but never faster than PACE allows.
-      p = Math.max(maxY, Math.min(p + PACE * step, maxY + maxLag));
+      // Follow the page, never faster than PACE allows, and always spend at
+      // least PACE_MIN — so no stretch is ever drawn in one jump.
+      p = Math.max(p + PACE_MIN * step, maxY, Math.min(p + PACE * step, maxY + maxLag));
       paced[i] = p;
     }
     const nodeLens = geo.nodes.map(({ el, at }) => {
