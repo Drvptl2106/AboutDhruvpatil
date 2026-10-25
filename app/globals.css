@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #111;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body.intro-running { overflow: hidden; }
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+#greeting {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  color: #303030;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(42px, 4vw, 58px);
+  line-height: 1;
+  font-weight: 650;
+  letter-spacing: -.055em;
+  opacity: 1;
+  transition: opacity 100ms cubic-bezier(.4, 0, .6, 1);
+}
+
+#greeting.tamil { font-family: Arial, "Noto Sans Tamil", sans-serif; letter-spacing: -.025em; }
+#greeting.devanagari { font-family: Arial, "Noto Sans Devanagari", sans-serif; letter-spacing: -.025em; }
+#greeting.konkani { font-family: Arial, "Noto Sans Devanagari", sans-serif; color: #f26a21; letter-spacing: -.025em; }
+#greeting.cjk { font-family: Arial, "Noto Sans", sans-serif; letter-spacing: -.035em; }
+#greeting.arabic { direction: rtl; font-family: Arial, "Noto Sans Arabic", sans-serif; letter-spacing: 0; }
+
+/* =========================================================
+   BLACK REVEAL — slides up from the bottom once the
+   greeting cycle finishes.
+========================================================= */
+
+#black-reveal {
+  position: fixed;
+  z-index: 1100;
+  left: -15vw;
+  bottom: -135vh;
+  width: 130vw;
+  height: 145vh;
+  background: #111;
+  border-radius: 50% 50% 0 0 / 16% 16% 0 0;
+  pointer-events: none;
+}
+
+#black-reveal.enter { animation: blackReveal 900ms cubic-bezier(.76, 0, .24, 1) forwards; }
+
+@keyframes blackReveal {
+  from { bottom: -135vh; }
+  to { bottom: -10vh; }
+}
+
+#intro.hide { animation: introOut 400ms cubic-bezier(.76, 0, .24, 1) forwards; }
+
+@keyframes introOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *:before, *:after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  #intro, #black-reveal { display: none; }
+}
