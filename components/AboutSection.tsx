@@ -25,7 +25,7 @@ function Statement({ text }: { text: string }) {
     <p
       ref={ref}
       data-line-pass
-      className="mt-16 max-w-5xl font-serif text-[clamp(2rem,4.4vw,4rem)] leading-[1.12] tracking-[-0.01em] md:mt-24"
+      className="mx-auto mt-16 max-w-4xl text-center font-serif text-[clamp(2rem,4.4vw,4rem)] leading-[1.12] tracking-[-0.01em] md:mt-24"
     >
       {words.map((word, i) => (
         <Word key={i} progress={scrollYProgress} range={[i / words.length, (i + 1) / words.length]}>
@@ -76,7 +76,7 @@ function ArtistWall() {
   return (
     <div
       ref={gallery}
-      data-line-end
+      data-line-wall
       className="relative box-border flex h-[175vh] gap-[2vw] overflow-hidden bg-paper p-[2vw]"
     >
       <Column images={a.slice(0, 3)} y={y} />
@@ -89,12 +89,11 @@ function ArtistWall() {
 
 export default function AboutSection() {
   return (
-    <section id="about" className="relative z-10 w-full">
-      <div className="mx-auto w-full max-w-6xl px-5 py-32 md:py-48">
+    <section id="about" data-line-step="about" className="relative z-10 w-full">
+      <div className="mx-auto w-full max-w-6xl px-5 pb-32 md:pb-48">
         <SectionHeader
           index="04"
-          label="About"
-          meta="What defines me"
+          label="About — what defines me"
           title={
             <>
               About <em className="italic text-muted">Me</em>
@@ -104,10 +103,9 @@ export default function AboutSection() {
         <Statement text={about.statement} />
       </div>
 
-      <div className="mx-auto flex w-full max-w-6xl items-end justify-between px-5 pb-8 text-[11px] uppercase tracking-[0.3em] text-subtle">
-        <span>On repeat</span>
-        <span>The artists in my headphones</span>
-      </div>
+      <p className="px-5 pb-8 text-center text-[11px] uppercase tracking-[0.3em] text-subtle">
+        On repeat — the artists in my headphones
+      </p>
       <ArtistWall />
     </section>
   );

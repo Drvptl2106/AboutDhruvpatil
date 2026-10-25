@@ -12,6 +12,9 @@ import Timeline from "@/components/Timeline";
 import WorkSection from "@/components/WorkSection";
 import { education, experience } from "@/lib/content";
 
+/** An empty screen the line wanders through between sections. */
+const Blank = () => <div aria-hidden data-line-step="zone" className="h-[80svh] md:h-[100svh]" />;
+
 export default function Home() {
   const [introDone, setIntroDone] = useState(false);
 
@@ -22,11 +25,11 @@ export default function Home() {
       <Nav show={introDone} />
       <ScrollLine ready={introDone}>
         <WorkSection show={introDone} />
+        <Blank />
         <Timeline
           id="experience"
           index="02"
           label="Experience"
-          meta="Where I've been"
           title={
             <>
               My <em className="italic text-muted">Experience</em>
@@ -34,11 +37,11 @@ export default function Home() {
           }
           items={experience}
         />
+        <Blank />
         <Timeline
           id="education"
           index="03"
           label="Education"
-          meta="What I've learned"
           title={
             <>
               My <em className="italic text-muted">Education</em>
@@ -46,9 +49,10 @@ export default function Home() {
           }
           items={education}
         />
+        <Blank />
         <AboutSection />
+        <CrowdSection />
       </ScrollLine>
-      <CrowdSection />
     </main>
   );
 }

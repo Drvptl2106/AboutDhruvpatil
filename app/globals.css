@@ -5,21 +5,23 @@
 /* Theme tokens (space-separated RGB so Tailwind can add alpha).
    Dark is the default; `html.light` switches. */
 :root {
-  --paper: 17 17 17;
-  --ink: 255 255 255;
+  /* Dark: black + green */
+  --paper: 10 10 10;
+  --ink: 245 245 245;
   --accent: 194 248 79;
   /* Solid (non-transparent) greys so the scroll line passes cleanly behind text. */
-  --muted: 184 184 184;
-  --subtle: 136 136 136;
+  --muted: 160 160 160;
+  --subtle: 115 115 115;
   color-scheme: dark;
 }
 
 html.light {
-  --paper: 245 243 236;
-  --ink: 24 24 24;
-  --accent: 242 106 33;
-  --muted: 90 90 88;
-  --subtle: 134 133 130;
+  /* Light: white + orange */
+  --paper: 255 255 255;
+  --ink: 17 17 17;
+  --accent: 255 94 26;
+  --muted: 110 110 110;
+  --subtle: 150 150 150;
   color-scheme: light;
 }
 
@@ -44,6 +46,14 @@ body.intro-running { overflow: hidden; }
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: clip; }
+
+/* Horizontal project strip */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Open Peeps are black line art: flip them to white on the dark theme. */
+.crowd-canvas { filter: invert(1); }
+html.light .crowd-canvas { filter: none; }
 
 /* Theme switch: the new snapshot is revealed by a clip-path circle
    animated from JS (components/ThemeToggle.tsx). */

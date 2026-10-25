@@ -139,5 +139,5 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
     };
   }, [src, rows, cols]);
 
-  return <canvas ref={canvasRef} aria-hidden className="absolute inset-x-0 bottom-0 h-[52%] w-full md:h-[62%]" />;
+  return <canvas ref={canvasRef} aria-hidden className="crowd-canvas absolute inset-0 size-full" />;
 }

@@ -1,9 +1,12 @@
 # Dhruv — Portfolio
 
-Multilingual greeting intro → black reveal → **My Work** (pinned gallery you scroll through) →
-**Experience** → **Education** → **About Me** (music + a parallax wall of favourite artists),
-all tied together by a line that draws itself as you scroll → a walking-crowd contact card.
-Smooth scrolling by Lenis.
+Multilingual greeting intro → black reveal → **My Work** (a project strip you scroll sideways or
+hover) → **Experience** → **Education** → **About Me** (music + a parallax wall of favourite artists)
+→ a walking crowd. One hand-drawn line threads through all of it as you scroll: it underlines each
+heading, plugs into the project strip, becomes the timeline spine, wanders through blank screens
+between sections, and ends by circling "your". Smooth scrolling by Lenis.
+
+Light mode is white + orange, dark mode is black + green.
 
 Built with Next.js 14, Tailwind CSS and Framer Motion.
 
@@ -26,8 +29,9 @@ photos in `public/images/artists/`, and point each `src` at them.
 
 - `components/Intro.tsx` — the greeting cycle + black reveal (ported from the original `index.html`)
 - `components/WorkSection.tsx` — "My Work" heading with masked slide-up text
-- `components/HoverExpand.tsx` — hover-to-expand gallery (vertical accordion on phones)
-- `components/ScrollLine.tsx` — the stroke that draws itself with scroll, looping beside each section heading
+- `components/HoverExpand.tsx` — hover-to-expand project strip (scroll sideways, swipe or drag)
+- `components/ScrollLine.tsx` — the stroke that draws itself with scroll; its route is built from
+  `data-line-*` markers in the sections (see the comment on `route()`)
 - `components/Timeline.tsx` — Experience and Education sections
 - `components/AboutSection.tsx` — word-by-word statement + parallax artist wall
 - `components/CrowdSection.tsx` / `CrowdCanvas.tsx` — closing card with a walking crowd
