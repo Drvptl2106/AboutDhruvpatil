@@ -83,3 +83,25 @@ export function toPath(pts: Point[]): { d: string; flat: Flat } {
   flat.total = flat.lens[n - 1];
   return { d, flat };
 }
+
+/** Fraction of the way along `flat` at which it passes closest to `p`. */
+export function fractionAt(flat: Flat, p: Point) {
+  let best = Infinity;
+  let len = 0;
+  for (let i = 0; i < flat.xs.length; i++) {
+    const d = Math.hypot(flat.xs[i] - p.x, flat.ys[i] - p.y);
+    if (d < best) {
+      best = d;
+      len = flat.lens[i];
+    }
+  }
+  return flat.total ? len / flat.total : 0;
+}
+
+/** Apply `f` to every coordinate pair of an absolute M/C-only path string. */
+export function mapPath(d: string, f: (p: Point) => Point) {
+  return d.replace(/(-?\d*\.?\d+)[\s,]+(-?\d*\.?\d+)/g, (_, x, y) => {
+    const p = f({ x: parseFloat(x), y: parseFloat(y) });
+    return `${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+  });
+}

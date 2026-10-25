@@ -36,6 +36,14 @@ function route(root: HTMLElement) {
   const last = () => pts[pts.length - 1];
   let zone = 0;
 
+  // Continue straight down from wherever the previous scene's line left
+  // (the Experience spine).
+  const handoff = document.querySelector("[data-line-handoff]");
+  if (handoff) {
+    const h = rect(handoff);
+    pts.push({ x: h.left + h.width / 2, y: -40 });
+  }
+
   const underlineAndLoop = (h: DOMRect) => {
     const y = h.bottom + 16;
     pts.push({ x: -off, y }, { x: h.left - 8, y }, { x: h.right - 8, y });
