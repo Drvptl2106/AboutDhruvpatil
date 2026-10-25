@@ -69,3 +69,14 @@ export const education: TimelineItem[] = [
     detail: "Stream, results, or anything worth a mention.",
   },
 ];
+
+// About — a draft in your voice; rewrite freely. Each word lights up as you scroll.
+export const about = {
+  statement:
+    "If you want to know me, listen to what I'm listening to. Music is what defines me — it's on before I start anything and it's still playing when I'm done. It shapes how I think, how I work, and the rhythm I try to put into everything I build.",
+  // Your favourite artists for the parallax wall — replace with real photos.
+  artists: Array.from({ length: 12 }, (_, i) => {
+    const n = String(i + 1).padStart(2, "0");
+    return { name: `Artist ${n}`, src: asset(`/images/artists/${n}.svg`) };
+  }),
+};

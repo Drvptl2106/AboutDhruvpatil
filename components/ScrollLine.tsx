@@ -6,53 +6,79 @@ import {
   useMotionValue,
   useMotionValueEvent,
   useScroll,
-  useSpring,
   useTransform,
 } from "framer-motion";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 type Point = { x: number; y: number };
 
-const SAMPLES = 1000;
+/** Per section: the heading to underline + loop, and the block to run beside. */
+type Stop = {
+  heading: DOMRect;
+  /** Top of the section header (label row), so the crossing stays above it. */
+  top: number;
+  pass?: { top: number; bottom: number; right: number };
+};
+
+const SAMPLES = 1200;
 // The tip of the line tracks this point of the viewport (0 = top, 1 = bottom).
 const TIP_AT = 0.62;
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 
 /**
- * Build one continuous stroke: drop in from the top, loop beside every
- * `[data-line-anchor]` heading, swing across the page between them, and
- * end at the top of `[data-line-end]`.
+ * One continuous stroke. For every section it slides in from the left edge as
+ * an underline beneath the heading, loops at the heading's end, turns down
+ * into the right-hand margin beside the section's content, then crosses the
+ * gap above the next section, leaves the screen on the left and comes back in
+ * as that heading's underline. It finishes at the top of `[data-line-end]`.
  */
-function buildPath(w: number, anchors: Point[], end: Point) {
-  const r = clamp(w * 0.04, 26, 52);
-  const kx = Math.min(r * 4, w * 0.12);
-  const loops = anchors.map((a) => ({ x: clamp(a.x + r * 2.4, r * 1.6, w - r * 1.6), y: a.y }));
+function buildPath(w: number, stops: Stop[], end: Point) {
+  const r = clamp(w * 0.035, 24, 48);
+  const edge = Math.min(w * 0.04, 40);
 
   // A full circle that starts and ends at its bottom point, travelling right.
   const loop = ({ x, y }: Point) =>
-    `C ${x + 1.33 * r} ${y + r}, ${x + 1.33 * r} ${y - r}, ${x} ${y - r} ` +
-    `C ${x - 1.33 * r} ${y - r}, ${x - 1.33 * r} ${y + r}, ${x} ${y + r} `;
+    `C ${x + 1.33 * r} ${y}, ${x + 1.33 * r} ${y - 2 * r}, ${x} ${y - 2 * r} ` +
+    `C ${x - 1.33 * r} ${y - 2 * r}, ${x - 1.33 * r} ${y}, ${x} ${y} `;
 
-  const startX = w * 0.9;
-  const first = loops[0];
-  let d = `M ${startX} 0 C ${startX} ${first.y * 0.6}, ${first.x - kx} ${first.y + r}, ${first.x} ${first.y + r} `;
-  d += loop(first);
+  let d = "";
+  let p: Point | null = null;
 
-  for (let i = 1; i < loops.length; i++) {
-    const a = loops[i - 1];
-    const b = loops[i];
-    const side = i % 2 === 1 ? w * 0.06 : w * 0.94;
-    const midY = (a.y + b.y) / 2 + r;
-    const k = (b.y - a.y) * 0.3;
-    d += `C ${a.x + kx} ${a.y + r}, ${side} ${midY - k}, ${side} ${midY} `;
-    d += `C ${side} ${midY + k}, ${b.x - kx} ${b.y + r}, ${b.x} ${b.y + r} `;
+  for (const stop of stops) {
+    const h = stop.heading;
+    const b = { x: clamp(h.right + r * 2, r * 1.6, w - r * 1.6), y: h.bottom + 18 };
+
+    if (!p) {
+      d += `M ${-r} ${b.y} `;
+    } else {
+      // Down the margin, then turn left across the gap above this section…
+      const gapY = Math.max(p.y + r * 2, (p.y + stop.top) / 2);
+      const t = clamp(gapY - p.y, r, 200);
+      d += `L ${p.x} ${gapY - t} `;
+      d += `C ${p.x} ${gapY - t * 0.45}, ${p.x - t * 0.45} ${gapY}, ${p.x - t} ${gapY} `;
+      d += `L ${edge + r} ${gapY} `;
+      // …out past the left edge and back in, level with the underline.
+      const k = (b.y - gapY) * 0.7;
+      d += `C ${edge - k} ${gapY}, ${edge - k} ${b.y}, ${edge + r} ${b.y} `;
+    }
+    d += `L ${b.x} ${b.y} `;
     d += loop(b);
+
+    // Margin lane just right of the content (or hugging the screen edge).
+    const right = stop.pass?.right ?? w * 0.9;
+    const lane = clamp(right + Math.min((w - right) / 2, 72), b.x + r, w - 8);
+    const turn = clamp(lane - b.x, r * 2, 240);
+    d += `C ${b.x + (lane - b.x) * 0.6} ${b.y}, ${lane} ${b.y + turn * 0.4}, ${lane} ${b.y + turn} `;
+    const bottom = Math.max(stop.pass?.bottom ?? 0, b.y + turn);
+    d += `L ${lane} ${bottom} `;
+    p = { x: lane, y: bottom };
   }
 
-  const last = loops[loops.length - 1];
-  const k = (end.y - last.y) * 0.5;
-  d += `C ${last.x + kx} ${last.y + r}, ${end.x} ${end.y - k}, ${end.x} ${end.y}`;
+  if (p) {
+    const k = (end.y - p.y) * 0.5;
+    d += `C ${p.x} ${p.y + k}, ${end.x} ${end.y - k}, ${end.x} ${end.y}`;
+  }
   return d;
 }
 
@@ -74,9 +100,8 @@ export default function ScrollLine({
   const [geo, setGeo] = useState<{ w: number; h: number; d: string; stroke: number } | null>(null);
 
   const target = useMotionValue(0);
-  const smooth = useSpring(target, { stiffness: 90, damping: 26, restDelta: 0.0001 });
   const gate = useMotionValue(0);
-  const drawn = useTransform<number, number>([smooth, gate], ([p, g]) => Math.min(p, g));
+  const drawn = useTransform<number, number>([target, gate], ([p, g]) => Math.min(p, g));
   const visible = useTransform(drawn, (v) => (v > 0.002 ? 1 : 0));
   const { scrollY } = useScroll();
 
@@ -84,19 +109,29 @@ export default function ScrollLine({
     const el = ref.current;
     if (!el) return;
     const box = el.getBoundingClientRect();
-    const rel = (r: DOMRect, x: number) => ({ x: x - box.left, y: r.top + r.height / 2 - box.top });
+    const local = (r: DOMRect) =>
+      new DOMRect(r.left - box.left, r.top - box.top, r.width, r.height);
 
-    const anchors = Array.from(el.querySelectorAll<HTMLElement>("[data-line-anchor]")).map((a) => {
-      const r = a.getBoundingClientRect();
-      return rel(r, r.right);
+    const stops: Stop[] = Array.from(el.querySelectorAll<HTMLElement>("[data-line-anchor]")).map((a) => {
+      const section = a.closest("section");
+      const passY = section?.querySelector<HTMLElement>("[data-line-pass]");
+      const passX = section?.querySelector<HTMLElement>("[data-line-pass-x]") ?? passY;
+      const y = passY && local(passY.getBoundingClientRect());
+      const x = passX && local(passX.getBoundingClientRect());
+      const header = a.closest("header") ?? a;
+      return {
+        heading: local(a.getBoundingClientRect()),
+        top: local(header.getBoundingClientRect()).top,
+        pass: y && x ? { top: y.top, bottom: y.bottom, right: x.right } : undefined,
+      };
     });
     const endEl = el.querySelector<HTMLElement>("[data-line-end]");
-    if (!anchors.length || !endEl) return;
-    const er = endEl.getBoundingClientRect();
-    const end = { x: er.left + er.width / 2 - box.left, y: er.top - box.top + 2 };
+    if (!stops.length || !endEl) return;
+    const er = local(endEl.getBoundingClientRect());
+    const end = { x: er.left + er.width / 2, y: er.top + 2 };
 
     const w = el.clientWidth;
-    setGeo({ w, h: el.scrollHeight, d: buildPath(w, anchors, end), stroke: w < 768 ? 9 : 14 });
+    setGeo({ w, h: el.scrollHeight, d: buildPath(w, stops, end), stroke: w < 768 ? 8 : 12 });
   }, []);
 
   const update = useCallback(() => {

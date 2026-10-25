@@ -25,7 +25,7 @@ export default function Timeline({
     <section id={id} className="relative z-10 mx-auto w-full max-w-6xl px-5 py-32 md:py-48">
       <SectionHeader index={index} label={label} meta={meta} title={title} />
 
-      <ul className="mt-16 md:mt-24">
+      <ul data-line-pass className="mt-16 md:mt-24">
         {items.map((item, i) => (
           <motion.li
             key={`${item.title}-${i}`}

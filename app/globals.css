@@ -33,10 +33,17 @@ html, body {
   background: rgb(var(--paper));
   color: rgb(var(--ink));
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip (not hidden) so the body doesn't become a scroll container —
+     that would break the pinned (sticky) gallery. */
+  overflow-x: clip;
 }
 
 body.intro-running { overflow: hidden; }
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: clip; }
 
 /* Theme switch: the new snapshot is revealed by a clip-path circle
    animated from JS (components/ThemeToggle.tsx). */

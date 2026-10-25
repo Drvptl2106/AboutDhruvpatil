@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+import { getLenis } from "@/lib/smooth";
+
 const greetings = [
   { text: "Hello", type: "" },
   { text: "Bonjour", type: "" },
@@ -44,6 +46,7 @@ export default function Intro({ onDone }: { onDone: () => void }) {
     const done = () => {
       document.body.classList.remove("intro-running");
       document.body.classList.add("intro-done");
+      getLenis()?.start();
       onDoneRef.current();
     };
 

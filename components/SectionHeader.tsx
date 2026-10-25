@@ -56,7 +56,7 @@ export default function SectionHeader({
       </h2>
 
       {intro && (
-        <Reveal show={show} delay={0.5} className="mt-6 max-w-md">
+        <Reveal show={show} delay={0.5} className="mt-12 max-w-md">
           <p className="text-sm leading-relaxed text-subtle">{intro}</p>
         </Reveal>
       )}

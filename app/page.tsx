@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 
-import ContactSection from "@/components/ContactSection";
+import AboutSection from "@/components/AboutSection";
+import CrowdSection from "@/components/CrowdSection";
 import Intro from "@/components/Intro";
 import Nav from "@/components/Nav";
 import ScrollLine from "@/components/ScrollLine";
+import SmoothScroll from "@/components/SmoothScroll";
 import Timeline from "@/components/Timeline";
 import WorkSection from "@/components/WorkSection";
 import { education, experience } from "@/lib/content";
@@ -15,6 +17,7 @@ export default function Home() {
 
   return (
     <main>
+      <SmoothScroll />
       <Intro onDone={() => setIntroDone(true)} />
       <Nav show={introDone} />
       <ScrollLine ready={introDone}>
@@ -43,8 +46,9 @@ export default function Home() {
           }
           items={education}
         />
-        <ContactSection />
+        <AboutSection />
       </ScrollLine>
+      <CrowdSection />
     </main>
   );
 }
