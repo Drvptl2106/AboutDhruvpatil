@@ -13,12 +13,18 @@ const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Dhruv — Portfolio",
-  description: "Selected work by Dhruv.",
+  description: "Selected work, experience and education of Dhruv Patil.",
 };
+
+// Applies the saved theme before first paint so there's no flash.
+const themeScript = `try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="intro-running font-sans">{children}</body>
     </html>
   );

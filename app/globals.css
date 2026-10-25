@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Theme tokens (space-separated RGB so Tailwind can add alpha).
+   Dark is the default; `html.light` switches. */
+:root {
+  --paper: 17 17 17;
+  --ink: 255 255 255;
+  --accent: 194 248 79;
+  /* Solid (non-transparent) greys so the scroll line passes cleanly behind text. */
+  --muted: 184 184 184;
+  --subtle: 136 136 136;
+  color-scheme: dark;
+}
+
+html.light {
+  --paper: 245 243 236;
+  --ink: 24 24 24;
+  --accent: 242 106 33;
+  --muted: 90 90 88;
+  --subtle: 134 133 130;
+  color-scheme: light;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -9,14 +30,21 @@ html, body {
   padding: 0;
   width: 100%;
   min-height: 100%;
-  background: #111;
-  color: #fff;
+  background: rgb(var(--paper));
+  color: rgb(var(--ink));
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 body.intro-running { overflow: hidden; }
 
+/* Theme switch: the new snapshot is revealed by a clip-path circle
+   animated from JS (components/ThemeToggle.tsx). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
 /* =========================================================
    INTRO
 ========================================================= */
@@ -68,7 +96,7 @@ body.intro-running { overflow: hidden; }
   bottom: -135vh;
   width: 130vw;
   height: 145vh;
-  background: #111;
+  background: rgb(var(--paper));
   border-radius: 50% 50% 0 0 / 16% 16% 0 0;
   pointer-events: none;
 }
