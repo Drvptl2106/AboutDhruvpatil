@@ -15,7 +15,7 @@ const KNOT_LAST_CTRL = { x: 956.297, y: 483.647 };
 
 /**
  * Knot behind the headline's right side, then a tail that carries on in the
- * knot's own direction and sweeps out at the bottom-left.
+ * knot's own direction and sweeps out through the left edge.
  */
 function heroLine(rel: Rel, w: number, h: number) {
   const t = rel("[data-line-anchor]");
@@ -29,8 +29,9 @@ function heroLine(rel: Rel, w: number, h: number) {
   const end = place(KNOT_END);
   const ctrl = place(KNOT_LAST_CTRL);
   const tail = new LineBuilder(end, { x: end.x - ctrl.x, y: end.y - ctrl.y })
-    .to({ x: w * 0.42, y: h * 0.9 }, { x: -1, y: 0.18 }, 0.45)
-    .to({ x: -80, y: h + 60 }, { x: -1, y: 0.5 }, 0.4)
+    .to({ x: w * 0.4, y: h * 0.86 }, { x: -1, y: 0.05 }, 0.45)
+    // Out through the left edge (not the bottom), where My Work picks it up.
+    .to({ x: -90, y: h * 0.74 }, { x: -1, y: -0.12 }, 0.42)
     .build();
   // The knot draws first, so the lead-in shows most of it.
   return { d: mapPath(KNOT, place) + tail.d.replace(/^M[^C]*/, " "), entry: 0.42 };

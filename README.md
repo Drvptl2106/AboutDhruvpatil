@@ -27,16 +27,20 @@ photos in `public/images/artists/`, and point each `src` at them.
 
 ## Structure
 
-- `components/Intro.tsx` — the greeting cycle + black reveal (ported from the original `index.html`)
-- `components/WorkSection.tsx` — "My Work" heading with masked slide-up text
-- `components/HoverExpand.tsx` — hover-to-expand project strip (scroll sideways, swipe or drag)
-- `components/ScrollLine.tsx` — the stroke that draws itself with scroll; its route is built from
-  `data-line-*` markers in the sections (see the comment on `route()`)
-- `components/Timeline.tsx` — Experience and Education sections
-- `components/AboutSection.tsx` — word-by-word statement + parallax artist wall
-- `components/CrowdSection.tsx` / `CrowdCanvas.tsx` — closing card with a walking crowd
+The page is a series of **scenes**. Each one holds still on screen while its part of the line
+plays out with the scroll, then lets go; each line leaves where the next scene's line comes in.
+
+- `components/LineFrame.tsx` — the scene: pinned stage, scroll → line length, timeline dots
+- `lib/linePath.ts` — `LineBuilder`: routes built from sweeps, true circles and straight runs
+  that always join in the same direction (no kinks)
+- `components/Hero.tsx` — "Follow the line" with Skiper 19's knot
+- `components/WorkSection.tsx` — title + project strip (`HoverExpand.tsx`)
+- `components/TimelineFrame.tsx` — Experience and Education; the line is the spine
+- `components/AboutFrame.tsx` — the music statement, lit word by word
+- `components/ArtistWall.tsx` — parallax wall of favourite artists
+- `components/CrowdFrame.tsx` / `CrowdCanvas.tsx` — the finale, circling "your"
+- `components/Intro.tsx` — greeting cycle + black reveal
 - `components/SmoothScroll.tsx` — Lenis smooth scrolling
-- `components/ThemeToggle.tsx` — light/dark switch with a circular reveal
 
 ## Credits
 
