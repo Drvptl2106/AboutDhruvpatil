@@ -35,6 +35,9 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
     const available: Peep[] = [];
     const crowd: Peep[] = [];
     let onScreen = true;
+    let builtFor = -1; // the width the crowd was last built for
+    // Sharper than 2x costs a lot of fill on phones for no visible gain.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const reset = (peep: Peep) => {
       const direction = Math.random() > 0.5 ? 1 : -1;
@@ -73,7 +76,7 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
       if (!onScreen) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
-      ctx.scale(devicePixelRatio, devicePixelRatio);
+      ctx.scale(dpr, dpr);
       for (const p of crowd) {
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -85,6 +88,14 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
     };
 
     const resize = () => {
+      // Only a new width rebuilds the crowd. Phones change the height every
+      // time the address bar shows or hides, which used to restart it.
+      if (canvas.clientWidth === builtFor) {
+        stage.height = canvas.clientHeight;
+        canvas.height = stage.height * dpr;
+        return;
+      }
+      builtFor = canvas.clientWidth;
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
       // Smaller people on smaller screens.
@@ -93,12 +104,14 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
         p.width = p.rect[2] * scale;
         p.height = p.rect[3] * scale;
       }
-      canvas.width = stage.width * devicePixelRatio;
-      canvas.height = stage.height * devicePixelRatio;
+      canvas.width = stage.width * dpr;
+      canvas.height = stage.height * dpr;
       crowd.forEach((p) => p.walk?.kill());
       crowd.length = 0;
       available.length = 0;
-      available.push(...all);
+      // As many people as the width holds without piling up (~28 on a phone).
+      const count = Math.round(Math.min(all.length, Math.max(18, stage.width / 14)));
+      available.push(...gsap.utils.shuffle([...all]).slice(0, count));
       while (available.length) add().walk!.progress(Math.random());
       if (reduced) {
         crowd.forEach((p) => p.walk?.pause());

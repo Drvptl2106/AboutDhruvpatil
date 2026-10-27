@@ -25,6 +25,13 @@ Everything lives in `lib/content.ts`: name, email, socials, projects, experience
 the About statement and your artists. Put project images in `public/images/work/` and artist
 photos in `public/images/artists/`, and point each `src` at them.
 
+## Mobile
+
+Phones (under 768 px wide) are sent to `/mobile/`, a separate page designed for touch: normal
+scrolling, one thread down the left gutter, swipeable projects with a bottom sheet, and a bottom
+tab bar. Its parts live in `components/mobile/`. Add `?desktop` to the address to see the desktop
+page on a phone. Projects can carry a `blurb` and `href` in `lib/content.ts` for the sheet.
+
 ## Structure
 
 The page is a series of **scenes**. Each one holds still on screen while its part of the line

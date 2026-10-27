@@ -93,12 +93,12 @@ export class LineBuilder {
   }
 
   /**
-   * An ellipse drawn from its top point (arrive heading left): top → left →
-   * bottom → right…, `quarters` quarter-turns, opening out a touch each turn
-   * like a pen circling a word.
+   * An ellipse traced counter-clockwise on screen (top → left → bottom →
+   * right…) starting from vertex `from` — arrive there heading the way the
+   * curve runs (left at the top, down at the left side). `quarters`
+   * quarter-turns, opening out a touch each turn like a pen circling a word.
    */
-  ellipseFromTop(rx: number, ry: number, quarters: number, grow = 0.05) {
-    const c = { x: this.p.x, y: this.p.y + ry };
+  ellipse(from: "top" | "left" | "bottom" | "right", rx: number, ry: number, quarters: number, grow = 0.05) {
     const verts = [
       { x: 0, y: -1 },
       { x: -1, y: 0 },
@@ -111,9 +111,11 @@ export class LineBuilder {
       { x: 1, y: 0 },
       { x: 0, y: -1 },
     ];
+    const first = ["top", "left", "bottom", "right"].indexOf(from);
+    const c = { x: this.p.x - verts[first].x * rx, y: this.p.y - verts[first].y * ry };
     for (let q = 0; q < quarters; q++) {
-      const i = q % 4;
-      const j = (q + 1) % 4;
+      const i = (first + q) % 4;
+      const j = (first + q + 1) % 4;
       const s0 = 1 + (grow * q) / 4;
       const s1 = 1 + (grow * (q + 1)) / 4;
       const to = { x: c.x + verts[j].x * rx * s1, y: c.y + verts[j].y * ry * s1 };
@@ -122,6 +124,11 @@ export class LineBuilder {
       this.cubic(add(this.p, mul(tans[i], hA)), sub(to, mul(tans[j], hB)), to);
     }
     return this;
+  }
+
+  /** The same, starting from the top (arrive heading left). */
+  ellipseFromTop(rx: number, ry: number, quarters: number, grow = 0.05) {
+    return this.ellipse("top", rx, ry, quarters, grow);
   }
 
   /** Remember this spot; `build()` reports how far along the line it is. */

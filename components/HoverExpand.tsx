@@ -11,6 +11,10 @@ export type WorkItem = {
   code: string;
   title: string;
   category: string;
+  /** A sentence or two about the project (shown on phones). */
+  blurb?: string;
+  /** Link to the project or case study. */
+  href?: string;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
