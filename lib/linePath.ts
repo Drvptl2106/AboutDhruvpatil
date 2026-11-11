@@ -3,6 +3,12 @@
 export type Point = { x: number; y: number };
 
 export const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
+
+/** Just past a screen edge. */
+export const OFF = 90;
+
+/** The one corner radius used across the page, for a stage of this size. */
+export const cornerRadius = (w: number, h: number) => clamp(Math.min(w, h) * 0.06, 36, 64);
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export type Flat = { xs: Float32Array; ys: Float32Array; lens: Float32Array; total: number };
@@ -74,6 +80,43 @@ export class LineBuilder {
   line(to: Point) {
     const v = sub(to, this.p);
     return this.cubic(add(this.p, mul(v, 1 / 3)), add(this.p, mul(v, 2 / 3)), to);
+  }
+
+  /**
+   * Straight runs through `pts`, every corner rounded to a true circular arc
+   * of radius `r` (or the corner's own `r`). The radius shrinks by itself
+   * where a run is too short for it. This is the line's whole vocabulary:
+   * nothing but straights and arcs, so it can't wobble.
+   */
+  round(pts: (Point & { r?: number })[], r: number) {
+    for (let i = 0; i < pts.length; i++) {
+      const b = pts[i];
+      const next = pts[i + 1];
+      const a = this.p;
+      const run = dist(a, b);
+      if (!next) {
+        if (run > 0.01) this.line(b);
+        break;
+      }
+      const u = unit(sub(b, a));
+      const v = unit(sub(next, b));
+      const theta = Math.acos(clamp(u.x * v.x + u.y * v.y, -1, 1));
+      if (run < 0.01) continue;
+      if (theta < 1e-3) {
+        this.line(b);
+        continue;
+      }
+      const tan = Math.tan(theta / 2);
+      // Leave half of the next run for the corner after this one.
+      const room = pts[i + 2] ? dist(b, next) / 2 : dist(b, next);
+      const d = Math.min((b.r ?? r) * tan, run, room);
+      const k = (4 / 3) * Math.tan(theta / 4) * (d / tan);
+      const from = sub(b, mul(u, d));
+      const to = add(b, mul(v, d));
+      if (dist(a, from) > 0.01) this.line(from);
+      this.cubic(add(from, mul(u, k)), sub(to, mul(v, k)), to);
+    }
+    return this;
   }
 
   /** A true circle tangent to the current heading, `turns` × 360° (in quarters). */

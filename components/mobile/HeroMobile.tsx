@@ -1,13 +1,14 @@
 "use client";
 
 import Reveal from "@/components/Reveal";
+import { profile } from "@/lib/content";
 
 /** Full-screen opener; the thread starts here, underlining the headline. */
 export default function HeroMobile({ show }: { show: boolean }) {
   return (
     <section id="top" className="relative z-10 flex min-h-[92svh] flex-col justify-center px-12 pb-24 pt-24">
-      <Reveal show={show} delay={0.1} className="text-[11px] uppercase tracking-[0.3em] text-subtle">
-        Dhruv Patil — Portfolio
+      <Reveal show={show} delay={0.1} className="font-serif text-lg italic text-muted">
+        {profile.tagline}
       </Reveal>
       <h1
         data-thread="title"

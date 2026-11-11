@@ -61,6 +61,7 @@ export default function ProjectSheet({ item, onClose }: { item: WorkItem | null;
                 {item.category} · {item.code}
               </p>
               <h3 className="mt-1 font-serif text-[2rem] leading-tight">{item.title}</h3>
+              {item.track && <p className="mt-1 text-sm text-subtle">♪ Built to {item.track}</p>}
               <p className="mt-3 text-[15px] leading-relaxed text-muted">
                 {item.blurb ?? "A short description of this project: what it is, your role, and what it achieved."}
               </p>

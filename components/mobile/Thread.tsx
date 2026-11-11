@@ -15,11 +15,13 @@ const PACE = 0.35;
 const PACE_MIN = 0.1;
 
 /**
- * The route, from the page's markers in order:
- *  - `data-thread="title"`: come off the gutter, underline the title, loop at
- *    its end, sweep back to the gutter (the first one starts off-screen left)
+ * The route, from the page's markers in order — straight runs joined by true
+ * rounded corners, nothing else:
+ *  - `data-thread="title"`: off the gutter, underline the title, down and
+ *    back to the gutter in the space reserved below it (the first one starts
+ *    off-screen left)
  *  - `data-thread="node"`: straight down the gutter through the dot
- *  - `data-thread="final"`: circle the word and stop
+ *  - `data-thread="final"`: straight down into a circle around the word
  */
 function route(root: HTMLElement) {
   const box = root.getBoundingClientRect();
@@ -28,42 +30,36 @@ function route(root: HTMLElement) {
     const b = el.getBoundingClientRect();
     return new DOMRect(b.left - box.left, b.top - box.top, b.width, b.height);
   };
-  const r = 15;
   const nodes: { el: HTMLElement; at: Point }[] = [];
-  let b: LineBuilder | null = null;
+  const pts: Point[] = [];
+  let start: Point | null = null;
+  let final: { rx: number; ry: number } | null = null;
 
   for (const el of Array.from(root.querySelectorAll<HTMLElement>("[data-thread]"))) {
     const t = rect(el);
     const kind = el.dataset.thread;
     if (kind === "title") {
       const y = t.bottom + 14;
-      const end = Math.min(t.right + r + 6, w - r - 10);
-      if (!b) b = new LineBuilder({ x: -30, y }, { x: 1, y: 0 });
-      else
-        b.line({ x: GUTTER, y: Math.max(b.point.y + 1, y - 56) }).to(
-          { x: Math.min(t.left + 8, GUTTER + 34), y },
-          { x: 1, y: 0 },
-          0.55,
-        );
-      b.line({ x: end, y })
-        .circle(r, 1, "left")
-        .to({ x: Math.min(end + 30, w - 12), y: y + 34 }, { x: 0, y: 1 }, 0.5)
-        .to({ x: GUTTER + 36, y: y + 82 }, { x: -1, y: 0.25 }, 0.45)
-        .to({ x: GUTTER, y: y + 118 }, { x: 0, y: 1 }, 0.55);
-    } else if (kind === "node" && b) {
+      const end = Math.min(t.right + 10, w - 22);
+      if (!start) start = { x: -30, y };
+      else pts.push({ x: GUTTER, y });
+      pts.push({ x: end, y }, { x: end, y: y + 64 }, { x: GUTTER, y: y + 64 });
+    } else if (kind === "node" && start) {
       const at = { x: GUTTER, y: t.top + t.height / 2 };
-      b.line(at);
+      pts.push(at);
       nodes.push({ el, at });
-    } else if (kind === "final" && b) {
-      const rx = t.width / 2 + 14;
+    } else if (kind === "final" && start) {
+      // Wide enough that the circle's left side sits on the gutter, so the
+      // thread runs straight down into it.
+      const rx = t.left + t.width / 2 - GUTTER;
       const ry = t.height / 2 + 6;
-      const cy = t.top + t.height * 0.55;
-      b.line({ x: GUTTER, y: Math.max(b.point.y + 1, cy - 70) })
-        .to({ x: t.left + t.width / 2 - rx, y: cy }, { x: 0, y: 1 }, 0.5)
-        .ellipse("left", rx, ry, 5);
+      pts.push({ x: GUTTER, y: t.top + t.height * 0.55 });
+      final = { rx, ry };
     }
   }
-  if (!b) return null;
+  if (!start) return null;
+  const b = new LineBuilder(start, { x: 1, y: 0 }).round(pts, 16);
+  if (final) b.ellipse("left", final.rx, final.ry, 5);
   const line = b.build();
   return {
     w,
@@ -175,7 +171,7 @@ export default function Thread({ ready, children }: { ready: boolean; children: 
           <motion.path
             d={geo.d}
             stroke="rgb(var(--line))"
-            strokeWidth={8}
+            strokeWidth={6}
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{ pathLength: drawn, opacity: visible }}

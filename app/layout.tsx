@@ -22,16 +22,16 @@ export const viewport: Viewport = { viewportFit: "cover" };
 // Applies the saved theme before first paint so there's no flash.
 const themeScript = `try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.add("light")}catch(e){}`;
 
-// Sends phones from the desktop page to /mobile/ before anything draws.
-// Add ?desktop to the address to stay on the desktop page.
-const mobileScript = `try{var p=location.pathname;if(!/\\/mobile\\/?$/.test(p)&&matchMedia("(max-width: 767px)").matches&&!/[?&]desktop/.test(location.search))location.replace(p.replace(/\\/?$/,"/")+"mobile/"+location.hash)}catch(e){}`;
+// The greeting intro plays once per browser session; hide it before first
+// paint on later loads (see components/Intro.tsx).
+const introScript = `try{if(sessionStorage.getItem("intro-seen"))document.documentElement.classList.add("intro-skip")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script dangerouslySetInnerHTML={{ __html: mobileScript }} />
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
       </head>
       <body className="intro-running font-sans">{children}</body>
     </html>

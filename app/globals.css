@@ -53,6 +53,14 @@ html.lenis, html.lenis body { height: auto; }
 .marquee { animation: marquee 38s linear infinite; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
+/* Now-playing equaliser */
+.eq-bar { height: 100%; transform-origin: bottom; animation: eq 0.9s ease-in-out infinite alternate; }
+@keyframes eq {
+  0% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+  100% { transform: scaleY(0.45); }
+}
+
 /* Horizontal project strip */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -137,6 +145,10 @@ html.light .crowd-canvas { filter: none; }
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* Already seen this session (class set in app/layout.tsx). */
+html.intro-skip #intro,
+html.intro-skip #black-reveal { display: none; }
 
 /* =========================================================
    REDUCED MOTION

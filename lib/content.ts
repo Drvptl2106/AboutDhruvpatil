@@ -5,7 +5,14 @@ import { asset } from "@/lib/asset";
 
 export const profile = {
   name: "Dhruv Patil",
+  // Top-left corner, under your name.
+  tagline: "I find problems — then the solutions to them.",
   location: "India — and online",
+  // Bottom-right corner: your city and its live local time.
+  city: "India",
+  timeZone: "Asia/Kolkata",
+  // Shown next to the clock with a pulsing dot. Set to "" to hide.
+  status: "Open to work",
   email: "hello@example.com",
   socials: [
     { label: "GitHub", href: "https://github.com/Drvptl2106" },
@@ -15,8 +22,9 @@ export const profile = {
 };
 
 // Drop images in /public/images/work and point `src` at them.
+// `track` (optional): the song you had on repeat while building it.
 export const work: WorkItem[] = [
-  { src: asset("/images/work/01.svg"), alt: "Project one", code: "# 01", title: "Project One", category: "Brand Identity" },
+  { src: asset("/images/work/01.svg"), alt: "Project one", code: "# 01", title: "Project One", category: "Brand Identity", track: "Song — Artist" },
   { src: asset("/images/work/02.svg"), alt: "Project two", code: "# 02", title: "Project Two", category: "Web Design" },
   { src: asset("/images/work/03.svg"), alt: "Project three", code: "# 03", title: "Project Three", category: "Development" },
   { src: asset("/images/work/04.svg"), alt: "Project four", code: "# 04", title: "Project Four", category: "UI / UX" },
@@ -70,13 +78,36 @@ export const education: TimelineItem[] = [
   },
 ];
 
+// Music — the bottom-left "now playing" corner and the Spotify links.
+export const music = {
+  // Your Spotify profile (open.spotify.com/user/…), linked from the dock and the artist wall.
+  spotifyProfile: "",
+  // A playlist to embed above the artist wall: the id from open.spotify.com/playlist/<id>.
+  playlistId: "",
+  // Live "now playing": connect Spotify to a free Last.fm account (Last.fm → Settings →
+  // Applications → Spotify), then create an API key at last.fm/api/account/create.
+  // Both values are safe to publish. Leave empty to show `onRepeat` instead.
+  lastfm: { user: "", apiKey: "" },
+  // Shown when Last.fm isn't set up (or can't be reached).
+  onRepeat: { title: "Song title", artist: "Artist", href: "" },
+};
+
+export type Artist = {
+  name: string;
+  src: string;
+  /** The artist's Spotify page (open.spotify.com/artist/…). Makes the card a link. */
+  spotify?: string;
+  /** The one song of theirs you'd recommend, shown on hover. */
+  song?: string;
+};
+
 // About — a draft in your voice; rewrite freely. Each word lights up as you scroll.
 export const about = {
   statement:
     "If you want to know me, listen to what I'm listening to. Music is what defines me — it's on before I start anything and it's still playing when I'm done. It shapes how I think, how I work, and the rhythm I try to put into everything I build.",
   // Your favourite artists for the parallax wall — replace with real photos.
-  artists: Array.from({ length: 12 }, (_, i) => {
+  artists: Array.from({ length: 12 }, (_, i): Artist => {
     const n = String(i + 1).padStart(2, "0");
-    return { name: `Artist ${n}`, src: asset(`/images/artists/${n}.svg`) };
+    return { name: `Artist ${n}`, src: asset(`/images/artists/${n}.svg`), song: "Their best song" };
   }),
 };

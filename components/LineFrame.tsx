@@ -144,7 +144,7 @@ export default function LineFrame({
             <motion.path
               d={geo.d}
               stroke="rgb(var(--line))"
-              strokeWidth={geo.w < 768 ? 10 : 16}
+              strokeWidth={geo.w < 1024 ? 8 : 10}
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{ pathLength, opacity }}

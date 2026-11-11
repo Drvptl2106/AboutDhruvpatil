@@ -3,7 +3,10 @@
 import { motion, type MotionValue, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
+import ArtistCard from "@/components/ArtistCard";
+import NowPlaying from "@/components/frame/NowPlaying";
 import SectionTitle from "@/components/mobile/SectionTitle";
+import SpotifyLinks from "@/components/SpotifyLinks";
 import { about } from "@/lib/content";
 
 function Word({ children, progress, range }: { children: string; progress: MotionValue<number>; range: [number, number] }) {
@@ -24,12 +27,7 @@ function ArtistRow({ items, reverse }: { items: typeof about.artists; reverse?: 
         style={{ animationDirection: reverse ? "reverse" : "normal" }}
       >
         {[...items, ...items].map((a, i) => (
-          <figure key={i} aria-hidden={i >= items.length} className="relative h-44 w-36 shrink-0 overflow-hidden rounded-2xl">
-            <img src={a.src} alt={i < items.length ? a.name : ""} className="size-full object-cover" />
-            <figcaption className="absolute bottom-2.5 left-3 text-[10px] uppercase tracking-[0.2em] text-white/85">
-              {a.name}
-            </figcaption>
-          </figure>
+          <ArtistCard key={i} artist={a} hidden={i >= items.length} className="h-44 w-36 shrink-0" />
         ))}
       </div>
     </div>
@@ -56,7 +54,10 @@ export default function AboutMobile() {
         ))}
       </p>
 
-      <p className="mt-20 px-12 text-[11px] uppercase tracking-[0.3em] text-subtle">On repeat</p>
+      <NowPlaying className="mx-12 mr-6 mt-14 rounded-2xl border border-ink/10 px-4 py-3.5" />
+
+      <p id="artists" className="mt-16 px-12 text-[11px] uppercase tracking-[0.3em] text-subtle">On repeat</p>
+      <SpotifyLinks className="mt-5 px-12 pr-6" />
       <div className="mt-5 flex flex-col gap-3">
         <ArtistRow items={about.artists.slice(0, half)} />
         <ArtistRow items={about.artists.slice(half)} reverse />

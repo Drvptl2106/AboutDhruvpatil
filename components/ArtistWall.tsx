@@ -3,6 +3,8 @@
 import { motion, type MotionValue, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
+import ArtistCard from "@/components/ArtistCard";
+import SpotifyLinks from "@/components/SpotifyLinks";
 import { about } from "@/lib/content";
 
 function Column({ images, y }: { images: typeof about.artists; y: MotionValue<number> }) {
@@ -12,12 +14,7 @@ function Column({ images, y }: { images: typeof about.artists; y: MotionValue<nu
       style={{ y }}
     >
       {images.map((a) => (
-        <figure key={a.src} className="relative h-full w-full overflow-hidden rounded-2xl">
-          <img src={a.src} alt={a.name} className="pointer-events-none size-full object-cover" />
-          <figcaption className="absolute bottom-3 left-4 text-[10px] uppercase tracking-[0.25em] text-white/80">
-            {a.name}
-          </figcaption>
-        </figure>
+        <ArtistCard key={a.src} artist={a} className="h-full w-full" />
       ))}
     </motion.div>
   );
@@ -29,10 +26,13 @@ export default function ArtistWall() {
   const [height, setHeight] = useState(0);
   const { scrollYProgress } = useScroll({ target: gallery, offset: ["start end", "end start"] });
 
-  const y = useTransform(scrollYProgress, [0, 1], [0, height * 2]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, height * 3.3]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, height * 1.25]);
-  const y4 = useTransform(scrollYProgress, [0, 1], [0, height * 3]);
+  // Travel is scaled to the wall's height (140vh, down from Skiper's 175vh)
+  // so no column runs out of cards before it leaves the screen.
+  const travel = height * 0.8;
+  const y = useTransform(scrollYProgress, [0, 1], [0, travel * 2]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, travel * 3.3]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, travel * 1.25]);
+  const y4 = useTransform(scrollYProgress, [0, 1], [0, travel * 3]);
 
   useEffect(() => {
     const resize = () => setHeight(window.innerHeight);
@@ -43,13 +43,14 @@ export default function ArtistWall() {
 
   const a = about.artists;
   return (
-    <section aria-label="Artists on repeat" className="relative z-10 w-full bg-paper">
+    <section id="artists" aria-label="Artists on repeat" className="relative z-10 w-full bg-paper">
       <p className="px-5 pb-8 pt-16 text-center text-[11px] uppercase tracking-[0.3em] text-subtle">
         On repeat — the artists in my headphones
       </p>
+      <SpotifyLinks className="flex flex-col items-center px-5 pb-10" />
       <div
         ref={gallery}
-      className="relative box-border flex h-[175vh] gap-[2vw] overflow-hidden bg-paper p-[2vw]"
+      className="relative box-border flex h-[140vh] gap-[2vw] overflow-hidden bg-paper p-[2vw]"
     >
       <Column images={a.slice(0, 3)} y={y} />
       <Column images={a.slice(3, 6)} y={y2} />

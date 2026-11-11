@@ -9,23 +9,21 @@ const greetings = [
   { text: "Bonjour", type: "" },
   { text: "Hola", type: "" },
   { text: "Ciao", type: "" },
-  { text: "Hallo", type: "" },
-  { text: "Olá", type: "" },
   { text: "வணக்கம்", type: "tamil" },
-  { text: "देव बरें करूं", type: "konkani" },
   { text: "こんにちは", type: "cjk" },
-  { text: "你好", type: "cjk" },
-  { text: "안녕", type: "cjk" },
   { text: "नमस्ते", type: "devanagari" },
   { text: "مرحبا", type: "arabic" },
-  { text: "Привет", type: "" },
+  // Home: the last word, held a beat longer.
+  { text: "देव बरें करूं", type: "konkani" },
 ];
 
 const WORD_TIME = 145;
 const FADE_TIME = 95;
+const HOME_HOLD = 950;
 
 /**
- * Multilingual greeting intro. When the cycle finishes, a black
+ * Multilingual greeting intro, played once per browser session (later loads
+ * go straight to the page). When the cycle finishes, a black
  * oval slides up from the bottom of the screen and `onDone` fires
  * right as it takes over, so the next section can animate in.
  */
@@ -46,11 +44,15 @@ export default function Intro({ onDone }: { onDone: () => void }) {
     const done = () => {
       document.body.classList.remove("intro-running");
       document.body.classList.add("intro-done");
+      try {
+        sessionStorage.setItem("intro-seen", "1");
+      } catch {}
       getLenis()?.start();
       onDoneRef.current();
     };
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const seen = document.documentElement.classList.contains("intro-skip");
+    if (seen || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       intro.style.display = "none";
       blackReveal.style.display = "none";
       done();
@@ -77,7 +79,7 @@ export default function Intro({ onDone }: { onDone: () => void }) {
           greeting.style.opacity = "1";
         });
 
-        later(changeGreeting, WORD_TIME);
+        later(changeGreeting, current === greetings.length - 1 ? HOME_HOLD : WORD_TIME);
       }, FADE_TIME);
     }
 

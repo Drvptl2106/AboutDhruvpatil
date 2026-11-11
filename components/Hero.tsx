@@ -2,7 +2,7 @@
 
 import LineFrame, { type Rel } from "@/components/LineFrame";
 import Reveal from "@/components/Reveal";
-import { clamp, LineBuilder, mapPath } from "@/lib/linePath";
+import { clamp, cornerRadius, LineBuilder, mapPath, OFF } from "@/lib/linePath";
 
 // The tangle from Skiper 19's stroke (Skiper UI, after comgio.ai) — the part
 // of its path up to where it drops away from the knot. In its own units.
@@ -14,8 +14,9 @@ const KNOT_END = { x: 953.797, y: 561.655 };
 const KNOT_LAST_CTRL = { x: 956.297, y: 483.647 };
 
 /**
- * Knot behind the headline's right side, then a tail that carries on in the
- * knot's own direction and sweeps out through the left edge.
+ * Knot behind the headline's right side; from its end the line drops straight,
+ * turns along the foot of the screen and leaves at the bottom centre — the
+ * point where every scene hands the line to the next.
  */
 function heroLine(rel: Rel, w: number, h: number) {
   const t = rel("[data-line-anchor]");
@@ -28,10 +29,20 @@ function heroLine(rel: Rel, w: number, h: number) {
   });
   const end = place(KNOT_END);
   const ctrl = place(KNOT_LAST_CTRL);
+  const r = cornerRadius(w, h);
+  // Ease the knot's last few degrees of lean into a true vertical.
+  const drop = { x: end.x - 2, y: end.y + 44 };
+  const foot = Math.max(h - r - 28, drop.y + r + 4);
   const tail = new LineBuilder(end, { x: end.x - ctrl.x, y: end.y - ctrl.y })
-    .to({ x: w * 0.4, y: h * 0.86 }, { x: -1, y: 0.05 }, 0.45)
-    // Out through the left edge (not the bottom), where My Work picks it up.
-    .to({ x: -90, y: h * 0.74 }, { x: -1, y: -0.12 }, 0.42)
+    .to(drop, { x: 0, y: 1 }, 0.4)
+    .round(
+      [
+        { x: drop.x, y: foot },
+        { x: w / 2, y: foot },
+        { x: w / 2, y: h + OFF },
+      ],
+      r,
+    )
     .build();
   // The knot draws first, so the lead-in shows most of it.
   return { d: mapPath(KNOT, place) + tail.d.replace(/^M[^C]*/, " "), entry: 0.42 };
@@ -39,7 +50,7 @@ function heroLine(rel: Rel, w: number, h: number) {
 
 export default function Hero({ show }: { show: boolean }) {
   return (
-    <LineFrame id="top" length={200} build={heroLine} lead show={show}>
+    <LineFrame id="top" length={160} build={heroLine} lead show={show}>
       <div className="flex h-full flex-col items-center justify-center px-5 text-center">
         <h1
           data-line-anchor

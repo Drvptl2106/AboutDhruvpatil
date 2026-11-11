@@ -37,7 +37,7 @@ export default function TimelineMobile({
           >
             <span
               data-thread="node"
-              className="absolute left-4 top-1 block size-4 rounded-full border-2 border-subtle bg-paper transition-all duration-500 data-[lit]:scale-125 data-[lit]:border-line data-[lit]:bg-line"
+              className="absolute left-4 top-1 block size-4 rounded-full border-2 border-subtle bg-paper transition-all duration-500 data-[lit]:scale-125 data-[lit]:border-[3px] data-[lit]:border-line"
             />
             <p className="text-[11px] uppercase tracking-[0.25em] text-subtle">{item.period}</p>
             <h3 className="mt-2 font-serif text-[1.75rem] leading-tight">{item.title}</h3>

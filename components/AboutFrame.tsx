@@ -4,40 +4,36 @@ import { motion, type MotionValue, useTransform } from "framer-motion";
 
 import LineFrame, { type Rel, useSceneProgress } from "@/components/LineFrame";
 import { about } from "@/lib/content";
-import { clamp, LineBuilder } from "@/lib/linePath";
-
-const OFF = 90;
+import { cornerRadius, fractionAt, LineBuilder, OFF } from "@/lib/linePath";
 
 /**
- * Down from the top where Education's spine left, a rounded turn left above the
- * label and a circle hanging above the line; out through the left edge; back
- * in between the heading and the statement, across, down beside the statement
- * and a sweep back to the middle, out at the bottom into the artist wall.
+ * Down from the top centre, a turn right above the label, down beside the
+ * statement, back to the centre beneath it and out at the bottom centre,
+ * into the artist wall.
  */
 function aboutRoute(rel: Rel, w: number, h: number) {
-  const e = rel("[data-line-anchor]");
   const label = rel("[data-line-label]");
   const st = rel("[data-line-pass]");
+  const r = cornerRadius(w, h);
   const x = w / 2;
-  const r = clamp(Math.min(w * 0.05, h * 0.085), 34, 80);
-  const bend = Math.max(label.top - 64, 2 * r + 30);
-  const between = (e.bottom + st.top) / 2;
-  const lane = Math.min(st.right + Math.max((w - st.right) * 0.35, 30), w - 30);
+  const above = Math.max(label.top - 44, 76);
+  const side = Math.min(st.right + Math.max((w - st.right) * 0.35, 30), w - 28);
+  const below = st.bottom + (h - st.bottom) * 0.42;
   const line = new LineBuilder({ x, y: -OFF }, { x: 0, y: 1 })
-    .to({ x: x - 110, y: bend }, { x: -1, y: 0 }, 0.5)
-    .mark()
-    .to({ x: w * 0.24, y: bend + 6 }, { x: -1, y: 0 }, 0.42)
-    .circle(r, 1, "right")
-    .to({ x: -OFF, y: bend + h * 0.08 }, { x: -1, y: 0.25 }, 0.42)
-    // off-screen: round and back in, lower down
-    .to({ x: -OFF * 0.6, y: between }, { x: 1, y: 0 }, 0.7)
-    .to({ x: lane - 70, y: between + 6 }, { x: 1, y: 0.02 }, 0.42)
-    .to({ x: lane, y: between + 70 }, { x: 0, y: 1 }, 0.45)
-    .line({ x: lane, y: Math.max(st.bottom - 40, between + 80) })
-    .to({ x: w * 0.56, y: st.bottom + (h - st.bottom) * 0.45 }, { x: -1, y: 0.3 }, 0.45)
-    .to({ x, y: h + OFF }, { x: 0, y: 1 }, 0.45)
+    .round(
+      [
+        { x, y: above },
+        { x: side, y: above },
+        { x: side, y: below },
+        { x, y: below, r: Math.min(r, (h - below) * 0.8) },
+        { x, y: h + OFF },
+      ],
+      r,
+    )
     .build();
-  return { d: line.d, entry: line.marks[0] };
+  // The drop, first corner and first run draw while the scene scrolls in, so
+  // the line is already moving when it takes over from the scene above.
+  return { d: line.d, entry: fractionAt(line.flat, { x: side, y: above }) };
 }
 
 /** One word of the statement; brightens as the scene plays. */
@@ -70,10 +66,10 @@ function Statement() {
 
 export default function AboutFrame() {
   return (
-    <LineFrame id="about" length={260} build={aboutRoute}>
+    <LineFrame id="about" length={200} build={aboutRoute}>
       <div className="flex h-full flex-col items-center justify-center px-5 pt-[12svh]">
         <p data-line-label className="text-[11px] uppercase tracking-[0.3em] text-subtle">
-          (04) — About — what defines me
+          (03) — About — what defines me
         </p>
         <h2
           data-line-anchor

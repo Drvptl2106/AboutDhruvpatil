@@ -15,6 +15,8 @@ export type WorkItem = {
   blurb?: string;
   /** Link to the project or case study. */
   href?: string;
+  /** The song on repeat while building it ("Song — Artist"). */
+  track?: string;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
@@ -102,6 +104,9 @@ export const HoverExpand_001 = ({
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.25em] text-white/60">{image.category}</p>
                       <p className="mt-1 whitespace-nowrap font-serif text-2xl text-white">{image.title}</p>
+                      {image.track && (
+                        <p className="mt-2 whitespace-nowrap text-[11px] text-white/60">♪ Built to {image.track}</p>
+                      )}
                     </div>
                     <p className="text-xs text-white/50">{image.code}</p>
                   </motion.div>

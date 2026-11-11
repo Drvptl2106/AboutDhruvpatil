@@ -1,6 +1,7 @@
 "use client";
 
 import CrowdCanvas from "@/components/CrowdCanvas";
+import Clock, { Status } from "@/components/frame/Clock";
 import Reveal from "@/components/Reveal";
 import { asset } from "@/lib/asset";
 import { profile } from "@/lib/content";
@@ -24,7 +25,12 @@ export default function ContactMobile() {
         </h2>
       </div>
 
-      <div className="mt-14 px-6">
+      <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 px-12 text-sm">
+        <Clock />
+        <Status className="text-muted" />
+      </p>
+
+      <div className="mt-10 px-6">
         <a
           href={`mailto:${profile.email}`}
           className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink text-xs uppercase tracking-[0.22em] text-paper active:scale-[0.98]"
