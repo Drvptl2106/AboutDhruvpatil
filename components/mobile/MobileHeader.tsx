@@ -17,7 +17,7 @@ export default function MobileHeader({ show }: { show: boolean }) {
       <a href="#top" className="text-[11px] uppercase tracking-[0.25em]">
         {profile.name}
       </a>
-      <ThemeToggle className="size-9" />
+      <ThemeToggle className="text-[11px] uppercase tracking-[0.2em]" />
     </motion.header>
   );
 }

@@ -62,9 +62,26 @@ export default function ProjectSheet({ item, onClose }: { item: WorkItem | null;
               </p>
               <h3 className="mt-1 font-serif text-[2rem] leading-tight">{item.title}</h3>
               {item.track && <p className="mt-1 text-sm text-subtle">♪ Built to {item.track}</p>}
-              <p className="mt-3 text-[15px] leading-relaxed text-muted">
-                {item.blurb ?? "A short description of this project: what it is, your role, and what it achieved."}
-              </p>
+              {item.problem || item.solution ? (
+                <dl className="mt-4 space-y-3 text-[15px] leading-relaxed">
+                  {item.problem && (
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-[0.25em] text-subtle">The problem</dt>
+                      <dd className="mt-0.5 text-muted">{item.problem}</dd>
+                    </div>
+                  )}
+                  {item.solution && (
+                    <div>
+                      <dt className="text-[10px] uppercase tracking-[0.25em] text-subtle">What I built</dt>
+                      <dd className="mt-0.5 text-muted">{item.solution}</dd>
+                    </div>
+                  )}
+                </dl>
+              ) : (
+                <p className="mt-3 text-[15px] leading-relaxed text-muted">
+                  {item.blurb ?? "A short description of this project: what it is, your role, and what it achieved."}
+                </p>
+              )}
               <div className="mt-6 flex gap-3">
                 <a
                   href={item.href ?? "#"}

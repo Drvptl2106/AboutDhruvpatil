@@ -98,8 +98,11 @@ export default function CrowdCanvas({ src, rows = 15, cols = 7 }: { src: string;
       builtFor = canvas.clientWidth;
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
-      // Smaller people on smaller screens.
-      const scale = Math.min(1, Math.max(0.5, stage.width / 1400));
+      // Smaller people on smaller screens, and never taller than the canvas:
+      // a person can stand up to 150px (unscaled) above the floor and bob 10px
+      // more, so the tallest must still fit or their heads get sliced off.
+      const tallest = (all[0]?.rect[3] ?? 0) + 160;
+      const scale = Math.min(1, Math.max(0.5, stage.width / 1400), tallest ? stage.height / tallest : 1);
       for (const p of all) {
         p.width = p.rect[2] * scale;
         p.height = p.rect[3] * scale;

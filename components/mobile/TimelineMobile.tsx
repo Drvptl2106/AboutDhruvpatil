@@ -42,7 +42,7 @@ export default function TimelineMobile({
             <p className="text-[11px] uppercase tracking-[0.25em] text-subtle">{item.period}</p>
             <h3 className="mt-2 font-serif text-[1.75rem] leading-tight">{item.title}</h3>
             <p className="mt-0.5 text-sm text-muted">{item.place}</p>
-            <p className="mt-2 text-[15px] leading-relaxed text-subtle">{item.detail}</p>
+            {item.detail && <p className="mt-2 text-[15px] leading-relaxed text-subtle">{item.detail}</p>}
           </motion.li>
         ))}
       </ol>

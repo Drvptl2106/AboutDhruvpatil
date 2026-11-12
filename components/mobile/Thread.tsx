@@ -21,7 +21,7 @@ const PACE_MIN = 0.1;
  *    back to the gutter in the space reserved below it (the first one starts
  *    off-screen left)
  *  - `data-thread="node"`: straight down the gutter through the dot
- *  - `data-thread="final"`: straight down into a circle around the word
+ *  - `data-thread="final"`: along beneath the word into a pen scribble round it
  */
 function route(root: HTMLElement) {
   const box = root.getBoundingClientRect();
@@ -33,7 +33,7 @@ function route(root: HTMLElement) {
   const nodes: { el: HTMLElement; at: Point }[] = [];
   const pts: Point[] = [];
   let start: Point | null = null;
-  let final: { rx: number; ry: number } | null = null;
+  let final: { c: Point; rx: number; ry: number } | null = null;
 
   for (const el of Array.from(root.querySelectorAll<HTMLElement>("[data-thread]"))) {
     const t = rect(el);
@@ -49,17 +49,17 @@ function route(root: HTMLElement) {
       pts.push(at);
       nodes.push({ el, at });
     } else if (kind === "final" && start) {
-      // Wide enough that the circle's left side sits on the gutter, so the
-      // thread runs straight down into it.
-      const rx = t.left + t.width / 2 - GUTTER;
-      const ry = t.height / 2 + 6;
-      pts.push({ x: GUTTER, y: t.top + t.height * 0.55 });
-      final = { rx, ry };
+      // Down the gutter, along beneath the word, then a pen scribble round it.
+      const c = { x: t.left + t.width / 2, y: t.top + t.height * 0.55 };
+      const rx = t.width / 2 + 12;
+      const ry = t.height / 2 + 7;
+      pts.push({ x: GUTTER, y: c.y + ry }, { x: c.x, y: c.y + ry });
+      final = { c, rx, ry };
     }
   }
   if (!start) return null;
   const b = new LineBuilder(start, { x: 1, y: 0 }).round(pts, 16);
-  if (final) b.ellipse("left", final.rx, final.ry, 5);
+  if (final) b.scribble(final.c, final.rx, final.ry);
   const line = b.build();
   return {
     w,

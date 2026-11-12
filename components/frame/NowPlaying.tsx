@@ -12,7 +12,7 @@ export function Equalizer({ playing, className }: { playing: boolean; className?
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className={cn("w-[3px] rounded-full bg-line", playing ? "eq-bar" : "h-1")}
+          className={cn("w-[2px] rounded-full bg-current", playing ? "eq-bar" : "h-1")}
           style={playing ? { animationDelay: `${i * -0.35}s` } : undefined}
         />
       ))}
@@ -21,7 +21,7 @@ export function Equalizer({ playing, className }: { playing: boolean; className?
 }
 
 /** What you're listening to: live from Last.fm, or your pick. */
-export default function NowPlaying({ className }: { className?: string }) {
+export default function NowPlaying({ className, bars = "text-line" }: { className?: string; bars?: string }) {
   const track = useNowPlaying();
   const Tag = track.href ? "a" : "div";
   return (
@@ -29,12 +29,12 @@ export default function NowPlaying({ className }: { className?: string }) {
       {...(track.href ? { href: track.href, target: "_blank", rel: "noreferrer" } : {})}
       className={cn("group flex min-w-0 items-center gap-3", className)}
     >
-      <Equalizer playing={track.kind !== "recent"} />
+      <Equalizer playing={track.kind !== "recent"} className={bars} />
       <span className="min-w-0">
-        <span className="block text-[9px] uppercase tracking-[0.25em] text-subtle">{LABEL[track.kind]}</span>
-        <span className="block truncate text-xs text-ink">
-          {track.title} <span className="text-muted">— {track.artist}</span>
-          {track.href && <span className="ml-1 text-subtle transition-colors group-hover:text-line">↗</span>}
+        <span className="block text-[10px] uppercase tracking-[0.25em] opacity-60">{LABEL[track.kind]}</span>
+        <span className="mt-0.5 block truncate text-xs">
+          {track.title} <span className="opacity-60">— {track.artist}</span>
+          {track.href && <span className="ml-1 opacity-60 transition-opacity group-hover:opacity-100">↗</span>}
         </span>
       </span>
     </Tag>

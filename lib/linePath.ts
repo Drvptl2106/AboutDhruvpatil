@@ -9,6 +9,9 @@ export const OFF = 90;
 
 /** The one corner radius used across the page, for a stage of this size. */
 export const cornerRadius = (w: number, h: number) => clamp(Math.min(w, h) * 0.06, 36, 64);
+
+/** How far the line keeps from any text it turns around. */
+export const clearance = (w: number, h: number) => clamp(Math.min(w * 0.06, h * 0.1), 64, 104);
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export type Flat = { xs: Float32Array; ys: Float32Array; lens: Float32Array; total: number };
@@ -172,6 +175,45 @@ export class LineBuilder {
   /** The same, starting from the top (arrive heading left). */
   ellipseFromTop(rx: number, ry: number, quarters: number, grow = 0.05) {
     return this.ellipse("top", rx, ry, quarters, grow);
+  }
+
+  /**
+   * A pen circling a word: `turns` rounds of a loose ellipse about `c`,
+   * starting from its bottom heading right. Each round is a little off the
+   * last — radius, centre and tilt drift — the way a hand goes round twice
+   * and never lands on the same track. Drawn as one smooth stroke.
+   */
+  scribble(c: Point, rx: number, ry: number, turns = 2.35) {
+    const per = 18;
+    const pts: Point[] = [this.p];
+    const n = Math.round(turns * per);
+    for (let i = 1; i <= n; i++) {
+      const t = i / per; // rounds so far
+      const k = i / n;
+      const a = Math.PI / 2 - t * Math.PI * 2;
+      const sx = rx * (1 + 0.07 * Math.sin(t * 2.3) + 0.06 * k);
+      const sy = ry * (1 + 0.12 * Math.sin(t * 1.7) + 0.08 * k);
+      const tilt = -0.08 * Math.sin(t * 1.4);
+      const ox = rx * 0.06 * Math.sin(t * 2.9);
+      const oy = ry * 0.1 * Math.sin(t * 2.1);
+      const x = sx * Math.cos(a);
+      const y = sy * Math.sin(a);
+      pts.push({
+        x: c.x + ox + x * Math.cos(tilt) - y * Math.sin(tilt),
+        y: c.y + oy + x * Math.sin(tilt) + y * Math.cos(tilt),
+      });
+    }
+    // Catmull-Rom through the points, leaving in the current heading.
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? add(p2, sub(p2, p1));
+      const c1 = p0 ? add(p1, mul(sub(p2, p0), 1 / 6)) : add(p1, mul(this.dir, dist(p1, p2) / 3));
+      const c2 = sub(p2, mul(sub(p3, p1), 1 / 6));
+      this.cubic(c1, c2, p2);
+    }
+    return this;
   }
 
   /** Remember this spot; `build()` reports how far along the line it is. */

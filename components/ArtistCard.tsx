@@ -12,7 +12,10 @@ export default function ArtistCard({ artist, className, hidden }: { artist: Arti
         src={artist.src}
         alt={hidden ? "" : artist.name}
         draggable={false}
-        className="pointer-events-none size-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className={cn(
+          "pointer-events-none size-full transition-transform duration-700 group-hover:scale-105",
+          artist.logo ? "bg-black object-contain p-[16%]" : "object-cover",
+        )}
       />
       <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
       <span className="absolute inset-x-4 bottom-3 text-white">

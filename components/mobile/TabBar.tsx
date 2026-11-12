@@ -2,52 +2,44 @@
 
 import { motion } from "framer-motion";
 
-import AppIcon from "@/components/frame/AppIcon";
-import { dockApps, goTo } from "@/lib/apps";
+import { allSectionIds, goTo, linkFor, sections } from "@/lib/apps";
 import { useActiveSection } from "@/lib/useActiveSection";
 import { cn } from "@/lib/utils";
 
-/**
- * The phone's dock: the same apps as the desktop one, within thumb reach,
- * with a dot under the section you're in.
- */
+/** The sections as words, within thumb reach; the one you're in is filled. */
 export default function TabBar({ show }: { show: boolean }) {
-  // Sections first, then Spotify; the other outside links live in Contact.
-  const apps = dockApps().filter((a) => a.sections || a.id === "spotify");
-  const current = useActiveSection(apps.flatMap((a) => a.sections ?? []));
+  const current = linkFor(useActiveSection(allSectionIds));
 
   return (
     // The outer layer centres it; the inner one animates (an animated
     // transform would otherwise replace the centring).
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+10px)] z-50 flex justify-center px-3">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+12px)] z-50 flex justify-center px-4">
       <motion.nav
         aria-label="Sections"
         initial={{ opacity: 0, y: 24 }}
         animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
         transition={{ duration: 0.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-auto"
+        className="pointer-events-auto w-full max-w-[440px]"
       >
-        <ul className="flex items-start gap-3 rounded-[24px] border border-ink/10 bg-paper/60 px-3 pb-1.5 pt-2.5 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.4)] backdrop-blur-xl">
-          {apps.map((app) => {
-            const active = !!current && !!app.sections?.includes(current);
-            const outside = "href" in app.target;
+        <ul className="flex rounded-full border border-ink/10 bg-paper/85 p-1 shadow-[0_12px_40px_-16px_rgba(0,0,0,0.35)] backdrop-blur-md">
+          {sections.map((s) => {
+            const on = current === s.id;
             return (
-              <li key={app.id} className="flex flex-col items-center">
+              <li key={s.id} className="flex-1">
                 <a
-                  href={outside ? (app.target as { href: string }).href : `#${(app.target as { section: string }).section}`}
-                  {...(outside ? { target: "_blank", rel: "noreferrer" } : {})}
-                  aria-label={app.label}
-                  aria-current={active ? "true" : undefined}
+                  href={`#${s.id}`}
+                  aria-current={on ? "true" : undefined}
                   onClick={(e) => {
-                    if (outside) return;
                     e.preventDefault();
-                    goTo((app.target as { section: string }).section);
+                    goTo(s.id);
                   }}
-                  className="block size-12 transition-transform active:scale-90"
+                  className={cn(
+                    "flex h-10 items-center justify-center rounded-full text-[10px] uppercase tracking-[0.18em] transition-colors",
+                    on ? "bg-ink text-paper" : "text-muted",
+                  )}
                 >
-                  <AppIcon id={app.id} />
+                  {s.label}
                 </a>
-                <span className={cn("mt-1 size-1 rounded-full bg-ink transition-opacity", active ? "opacity-70" : "opacity-0")} />
               </li>
             );
           })}

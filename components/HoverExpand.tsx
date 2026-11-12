@@ -17,6 +17,10 @@ export type WorkItem = {
   href?: string;
   /** The song on repeat while building it ("Song — Artist"). */
   track?: string;
+  /** The problem you spotted, in a line. */
+  problem?: string;
+  /** What you built to solve it, in a line. */
+  solution?: string;
 };
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
@@ -88,7 +92,7 @@ export const HoverExpand_001 = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute z-10 h-full w-full bg-gradient-to-t from-black/60 to-transparent"
+                    className="absolute z-10 h-full w-full bg-gradient-to-t from-black/85 via-black/45 to-transparent"
                   />
                 )}
               </AnimatePresence>
@@ -104,6 +108,22 @@ export const HoverExpand_001 = ({
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.25em] text-white/60">{image.category}</p>
                       <p className="mt-1 whitespace-nowrap font-serif text-2xl text-white">{image.title}</p>
+                      {(image.problem || image.solution) && (
+                        <dl className="mt-3 w-[min(340px,24vw)] space-y-2 text-[11.5px] leading-snug text-white/85">
+                          {image.problem && (
+                            <div className="flex gap-2">
+                              <dt className="w-16 shrink-0 text-[9px] uppercase tracking-[0.2em] text-white/50">Problem</dt>
+                              <dd>{image.problem}</dd>
+                            </div>
+                          )}
+                          {image.solution && (
+                            <div className="flex gap-2">
+                              <dt className="w-16 shrink-0 text-[9px] uppercase tracking-[0.2em] text-white/50">Solution</dt>
+                              <dd>{image.solution}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      )}
                       {image.track && (
                         <p className="mt-2 whitespace-nowrap text-[11px] text-white/60">♪ Built to {image.track}</p>
                       )}

@@ -4,7 +4,6 @@ import AboutFrame from "@/components/AboutFrame";
 import ArtistWall from "@/components/ArtistWall";
 import CrowdFrame from "@/components/CrowdFrame";
 import Corners from "@/components/frame/Corners";
-import Dock from "@/components/frame/Dock";
 import Hero from "@/components/Hero";
 import JourneyFrame from "@/components/JourneyFrame";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -21,15 +20,13 @@ export default function DesktopView({ show }: { show: boolean }) {
     <>
       <SmoothScroll />
       <Corners show={show} />
-      <Dock show={show} />
       <Hero show={show} />
       <WorkSection show={show} />
       <JourneyFrame />
       <AboutFrame />
       <ArtistWall />
       <CrowdFrame />
-      {/* Room for the dock and the bottom corners to sit below the crowd. */}
-      <footer className="flex h-28 justify-center pt-4 text-[10px] uppercase tracking-[0.25em] text-subtle">
+      <footer className="py-8 text-center text-[10px] uppercase tracking-[0.25em] text-subtle">
         © {new Date().getFullYear()} {profile.name}
       </footer>
     </>

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import DesktopView from "@/components/DesktopView";
 import Intro from "@/components/Intro";
+import Heritage from "@/components/Heritage";
 import MobileView from "@/components/mobile/MobileView";
 import { useIsMobile } from "@/lib/useIsMobile";
 
@@ -18,6 +19,7 @@ export default function Home() {
   return (
     <main>
       <Intro onDone={() => setIntroDone(true)} />
+      <Heritage />
       {mobile === null ? null : mobile ? <MobileView show={introDone} /> : <DesktopView show={introDone} />}
     </main>
   );

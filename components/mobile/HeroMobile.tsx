@@ -1,5 +1,6 @@
 "use client";
 
+import { openHeritage } from "@/components/Heritage";
 import Reveal from "@/components/Reveal";
 import { profile } from "@/lib/content";
 
@@ -7,8 +8,14 @@ import { profile } from "@/lib/content";
 export default function HeroMobile({ show }: { show: boolean }) {
   return (
     <section id="top" className="relative z-10 flex min-h-[92svh] flex-col justify-center px-12 pb-24 pt-24">
-      <Reveal show={show} delay={0.1} className="font-serif text-lg italic text-muted">
-        {profile.tagline}
+      <Reveal show={show} delay={0.1}>
+        <button
+          type="button"
+          onClick={openHeritage}
+          className="font-serif text-lg italic text-muted underline decoration-dotted underline-offset-4"
+        >
+          {profile.tagline}
+        </button>
       </Reveal>
       <h1
         data-thread="title"

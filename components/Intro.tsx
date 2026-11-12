@@ -19,7 +19,7 @@ const greetings = [
 
 const WORD_TIME = 145;
 const FADE_TIME = 95;
-const HOME_HOLD = 950;
+const HOME_HOLD = 380;
 
 /**
  * Multilingual greeting intro, played once per browser session (later loads

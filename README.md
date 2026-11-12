@@ -1,29 +1,45 @@
 # Dhruv — Portfolio
 
 Multilingual greeting intro → black reveal → **My Work** (a project strip you hover) → **My
-Journey** (experience and education either side of one spine) → **About Me** (music + a parallax
-wall of favourite artists) → a walking crowd. One hand-drawn line threads through all of it as you
+Journey** (experience and education either side of one spine) → **About Me** (music, your week in
+music live from Last.fm, and a wall of favourite artists) → a walking crowd. One hand-drawn line threads through all of it as you
 scroll: it underlines each heading, plugs into the project strip, becomes the timeline spine, and
 ends by circling "your". Smooth scrolling by Lenis. The intro plays once per browser session.
 
-Light mode is white + orange, dark mode is black + green.
+Light mode is white, dark mode is black; the line is orange in both.
 
 Built with Next.js 14, Tailwind CSS and Framer Motion.
 
 ## The frame
 
-The four corners stay put for the whole page: your name and one-line tagline (top left), the
-theme switch (top right), what you're listening to (bottom left), and your local time with a
-status (bottom right). A macOS-style dock at the bottom centre has one app per section, then your
-Spotify and other links; it magnifies under the pointer and marks the section you're in. Phones
-get the same apps in a dock above the thumb.
+The four corners stay put for the whole page, as plain type with no boxes: your name and tagline
+(top left), the sections and a "Light / Dark" switch (top right), what you're listening to
+(bottom left), and your city, local time and status (bottom right). The type is white with a
+difference blend, so it inverts against whatever is behind it; orange is left to the line. The
+top two corners tuck away once you scroll, like the macOS menu bar in full screen: touch the top
+edge to call them back. The bottom corners step aside at Contact. Phones get the sections as a
+text tab bar.
+
+## Little things
+
+- Projects are told problem first: give each one a `problem` (what you noticed was broken) and a
+  `solution` (what you built), shown on the open card and in the phone's project sheet.
+- The bottom-right corner shows your time, how far it is from the visitor's ("5h behind you"),
+  and what you're probably doing at that hour — edit the lines in `moodFor` in
+  `components/frame/Clock.tsx`.
+- "Dev borem karun", under your name (and above the headline on phones), dims the page with a
+  circle from the click, like the theme switch, and floats up a small cluster of cards explaining
+  the phrase, with Goa as its backdrop: its meaning, Mario Miranda, "say thanks in" Konkani /
+  Portuguese / English, the distance home, Mando, and festivals with photos. Edit them in `copy`
+  at the top of `components/Heritage.tsx`. Photos are from Wikimedia Commons under free licences,
+  credited on the cards.
 
 ## Music and Spotify
 
 All in `music` in `lib/content.ts`:
 
-- `spotifyProfile` — your Spotify profile link; the dock's Spotify app and a "Follow my Spotify"
-  button on the artist wall open it.
+- `spotifyProfile` — your Spotify profile link, opened by a "Follow my Spotify" button on the
+  artist wall.
 - `playlistId` — embeds one of your playlists above the artist wall.
 - `lastfm` — makes the bottom-left corner live. Spotify can't be read from a static site without
   a server holding a secret, so this goes through Last.fm instead: make a free Last.fm account,
@@ -31,9 +47,11 @@ All in `music` in `lib/content.ts`:
   and fill in your username and key (both are safe to publish).
 - `onRepeat` — the song shown when Last.fm isn't set up.
 
-Each artist can carry `spotify` (their Spotify page, which makes the card a link) and `song`
-(the one to start with, shown on hover). Each project can carry `track`, the song on repeat while
-you built it.
+Artists marked `featured` fill the wall's middle column; `logo` shows a logo smaller and whole
+on black. Each artist on the wall carries its photo and `spotify` (their Spotify page, which makes the
+card a link), and can carry `song` (the one to start with, shown on hover). The photos are the
+artists' own images on Spotify. Each project can carry `track`, the song on repeat while you
+built it.
 
 ## Run locally
 
@@ -71,10 +89,15 @@ plays out with the scroll, then lets go; each line leaves where the next scene's
 - `components/WorkSection.tsx` — title + project strip (`HoverExpand.tsx`)
 - `components/JourneyFrame.tsx` — Experience and Education in one scene; the line is the spine
 - `components/AboutFrame.tsx` — the music statement, lit word by word
-- `components/ArtistWall.tsx` — parallax wall of favourite artists
-- `components/CrowdFrame.tsx` / `CrowdCanvas.tsx` — the finale, circling "your"
+- `components/ArtistWall.tsx` — five columns of artists drifting at their own pace as you scroll
+  (each column's start and speed are worked out so it moves and never shows a gap); each card
+  opens the artist on Spotify
+- `components/WeekInMusic.tsx` — this week's most-played track and top artists, from Last.fm
+- `components/Heritage.tsx` — the card cluster behind "Dev borem karun"
+- `components/CrowdFrame.tsx` / `CrowdCanvas.tsx` — the finale: a pen scribble round "your", the
+  crowd, and the contact links beneath it
 - `components/Intro.tsx` — greeting cycle ending on Konkani + black reveal (once per session)
-- `components/frame/` — the four corners, the dock and its app icons
+- `components/frame/` — the four corners: now playing, clock and status
 - `components/DesktopView.tsx` / `components/mobile/MobileView.tsx` — the two layouts
 - `components/SmoothScroll.tsx` — Lenis smooth scrolling
 
@@ -82,7 +105,7 @@ plays out with the scroll, then lets go; each line leaves where the next scene's
 
 Built with components from [Skiper UI](https://gxuri.me) (@gurvinder-singh02):
 Skiper 52 `HoverExpand_001` (gallery), Skiper 19 (scroll stroke), Skiper 26 (theme toggle,
-originally by rudrodip), Skiper 30 `Parallax_002` (artist wall), Skiper 39 `Canvas_Landing_004`
+originally by rudrodip), Skiper 39 `Canvas_Landing_004`
 (crowd, after zadvorsky's CodePen). Crowd illustrations: [Open Peeps](https://www.openpeeps.com/)
 by Pablo Stanley (CC0).
 

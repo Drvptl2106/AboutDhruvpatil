@@ -44,6 +44,10 @@ html, body {
 
 body.intro-running { overflow: hidden; }
 
+/* No page scrollbar: the line and the section names show where you are. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+
 /* Lenis smooth scroll */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
@@ -65,9 +69,11 @@ html.lenis, html.lenis body { height: auto; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Open Peeps are black line art: flip them to white on the dark theme. */
-.crowd-canvas { filter: invert(1); }
-html.light .crowd-canvas { filter: none; }
+/* Open Peeps are black ink drawings; inverting them turns the solid hair and
+   clothes into white blobs. On the dark theme they stay as ink, on a cream
+   band (the cream of the dock-era wallpaper, warmer than pure white). */
+.crowd-band { background: #f3ebdd; }
+html.light .crowd-band { background: transparent; }
 
 /* Theme switch: the new snapshot is revealed by a clip-path circle
    animated from JS (components/ThemeToggle.tsx). */
@@ -145,6 +151,12 @@ html.light .crowd-canvas { filter: none; }
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+/* Light theme: the page under the sweep is white, so the intro runs dark
+   (light greeting on black) and the white sweep shows as it rises. */
+html.light #intro { background: #0a0a0a; }
+html.light #greeting { color: #ededed; }
+html.light #greeting.konkani { color: #ff7a3d; }
 
 /* Already seen this session (class set in app/layout.tsx). */
 html.intro-skip #intro,

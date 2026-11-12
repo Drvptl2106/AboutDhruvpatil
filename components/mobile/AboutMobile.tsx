@@ -7,6 +7,7 @@ import ArtistCard from "@/components/ArtistCard";
 import NowPlaying from "@/components/frame/NowPlaying";
 import SectionTitle from "@/components/mobile/SectionTitle";
 import SpotifyLinks from "@/components/SpotifyLinks";
+import WeekInMusic from "@/components/WeekInMusic";
 import { about } from "@/lib/content";
 
 function Word({ children, progress, range }: { children: string; progress: MotionValue<number>; range: [number, number] }) {
@@ -58,6 +59,7 @@ export default function AboutMobile() {
 
       <p id="artists" className="mt-16 px-12 text-[11px] uppercase tracking-[0.3em] text-subtle">On repeat</p>
       <SpotifyLinks className="mt-5 px-12 pr-6" />
+      <WeekInMusic className="mt-10 px-12 pr-6 !text-left [&_ol]:justify-start" />
       <div className="mt-5 flex flex-col gap-3">
         <ArtistRow items={about.artists.slice(0, half)} />
         <ArtistRow items={about.artists.slice(half)} reverse />

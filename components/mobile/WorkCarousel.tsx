@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import ProjectSheet from "@/components/mobile/ProjectSheet";
 import SectionTitle from "@/components/mobile/SectionTitle";
-import { work } from "@/lib/content";
+import { profile, work } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 /** Swipe through projects (native snap), tap one to open its sheet. */
@@ -66,6 +66,14 @@ export default function WorkCarousel() {
         </span>
         <span>Swipe · tap</span>
       </div>
+      <a
+        href={profile.socials.find((s) => s.label === "GitHub")?.href}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-6 inline-flex items-center gap-2 pl-12 text-[11px] uppercase tracking-[0.25em] text-muted"
+      >
+        GitHub <span aria-hidden>↗</span>
+      </a>
 
       <ProjectSheet item={open === null ? null : work[open]} onClose={() => setOpen(null)} />
     </section>

@@ -4,7 +4,7 @@ import { motion, type MotionValue, useTransform } from "framer-motion";
 
 import LineFrame, { type Rel, useSceneProgress } from "@/components/LineFrame";
 import { about } from "@/lib/content";
-import { cornerRadius, fractionAt, LineBuilder, OFF } from "@/lib/linePath";
+import { clearance, cornerRadius, fractionAt, LineBuilder, OFF } from "@/lib/linePath";
 
 /**
  * Down from the top centre, a turn right above the label, down beside the
@@ -16,8 +16,9 @@ function aboutRoute(rel: Rel, w: number, h: number) {
   const st = rel("[data-line-pass]");
   const r = cornerRadius(w, h);
   const x = w / 2;
-  const above = Math.max(label.top - 44, 76);
-  const side = Math.min(st.right + Math.max((w - st.right) * 0.35, 30), w - 28);
+  const gap = clearance(w, h);
+  const above = Math.max(label.top - gap, 76);
+  const side = Math.min(st.right + gap * 1.3, w - 28);
   const below = st.bottom + (h - st.bottom) * 0.42;
   const line = new LineBuilder({ x, y: -OFF }, { x: 0, y: 1 })
     .round(

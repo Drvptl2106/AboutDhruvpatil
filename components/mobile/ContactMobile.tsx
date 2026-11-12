@@ -30,7 +30,11 @@ export default function ContactMobile() {
         <Status className="text-muted" />
       </p>
 
-      <div className="mt-10 px-6">
+      <div className="crowd-band relative mt-10 h-[36svh] min-h-[15rem]">
+        <CrowdCanvas src={asset("/images/peeps/all-peeps.png")} rows={15} cols={7} />
+      </div>
+
+      <div className="px-6 pt-8">
         <a
           href={`mailto:${profile.email}`}
           className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-ink text-xs uppercase tracking-[0.22em] text-paper active:scale-[0.98]"
@@ -57,10 +61,7 @@ export default function ContactMobile() {
         </ul>
       </div>
 
-      <div className="relative mt-12 h-[34svh] min-h-[15rem]">
-        <CrowdCanvas src={asset("/images/peeps/all-peeps.png")} rows={15} cols={7} />
-      </div>
-      <footer className="flex justify-between border-t border-ink/10 px-6 pb-[calc(env(safe-area-inset-bottom)+104px)] pt-5 text-[10px] uppercase tracking-[0.25em] text-subtle">
+      <footer className="mt-10 flex justify-between border-t border-ink/10 px-6 pb-[calc(env(safe-area-inset-bottom)+104px)] pt-5 text-[10px] uppercase tracking-[0.25em] text-subtle">
         <span>
           © {new Date().getFullYear()} {profile.name}
         </span>

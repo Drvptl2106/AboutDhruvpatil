@@ -3,8 +3,8 @@
 import { HoverExpand_001 } from "@/components/HoverExpand";
 import LineFrame, { type Rel } from "@/components/LineFrame";
 import Reveal from "@/components/Reveal";
-import { work } from "@/lib/content";
-import { clamp, cornerRadius, fractionAt, LineBuilder, OFF } from "@/lib/linePath";
+import { profile, work } from "@/lib/content";
+import { clamp, clearance, cornerRadius, fractionAt, LineBuilder, OFF } from "@/lib/linePath";
 
 /**
  * Down from the top centre, a turn right level with the title, along to the
@@ -18,7 +18,7 @@ function workLine(rel: Rel, w: number, h: number) {
   const r = cornerRadius(w, h);
   const x = w / 2;
   const level = Math.max(t.top + t.height * 0.5, 84 + r);
-  const lane = Math.min(g.right + r + 24, w - 24);
+  const lane = Math.min(g.right + r + clearance(w, h) * 0.5, w - 24);
   const into = g.top + g.height * 0.58; // where it plugs into the strip
   const line = new LineBuilder({ x, y: -OFF }, { x: 0, y: 1 })
     .round(
@@ -55,6 +55,16 @@ export default function WorkSection({ show }: { show: boolean }) {
             </h2>
           </div>
           <HoverExpand_001 images={work} show={show} />
+          <Reveal show={show} delay={1} className="px-5">
+            <a
+              href={profile.socials.find((s) => s.label === "GitHub")?.href}
+              target="_blank"
+              rel="noreferrer"
+              className="group inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-muted transition-colors hover:text-ink"
+            >
+              GitHub <span className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
+            </a>
+          </Reveal>
         </div>
       </div>
     </LineFrame>
